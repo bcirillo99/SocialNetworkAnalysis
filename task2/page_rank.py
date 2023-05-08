@@ -1,3 +1,9 @@
+# This is a sample Python script.
+import sys
+ 
+# adding Folder_2 to the system path
+sys.path.insert(0, '../')
+
 import math
 
 import networkx as nx
@@ -7,12 +13,12 @@ import matplotlib.pyplot as plt
 import time
 from threading import Thread
 from joblib import Parallel, delayed
-from utils import create_graph_from_txt
+from queue import PriorityQueue
+from utils import *
 
-__all__ = ['linear_ranking', 'pageRank', 'pageRank_threads', 'linear_parallel_ranking']
+__all__ = ['linear_pageRank', 'pageRank', 'pageRank_threads', 'linear_parallel_ranking']
 
-
-def linear_ranking(G: nx.DiGraph, it=80, tol=1e-5, s=0.85):
+def linear_pageRank(G: nx.DiGraph, it=80, tol=1e-5, s=0.85):
     """
     Algoritmo di page ranking mediante il calcolo dell'autovettore della "link matrix" Av = v.
     Ogni valore A[i,j] della matrice A rappresenta 1/out_degree(j) ossia il numero di archi uscenti dal nodo j,
@@ -121,7 +127,7 @@ def random_walker_ranking(G: nx.DiGraph, it=80, alpha=0.9):
     return map_score
 
 
-def pageRank(G, s=0.85, step=75, confidence=0):
+def pageRank(G, s=0.85, step=100, confidence=0):
     time = 0
     n = nx.number_of_nodes(G)
     done = False
@@ -395,7 +401,18 @@ if __name__ == '__main__':
     G.add_edge('C', 'F')
     G.add_edge('C', 'G')
     G.add_edge('G', 'A')
-    # collego ad S le pagine più popolari
+
+    print("pageRank")
+    p1 = pageRank(G)
+    print(top(G, p1, 4))
+    print("page2")
+    p2 = nx.pagerank(G)
+    print(top(G, p2, 4))
+    print("pageparallel")
+    p2 = linear_pageRank(G)
+    print(top(G, p2, 4))
+
+"""    # collego ad S le pagine più popolari
     # G.add_edge('A', 'S')
     # G.add_edge('B', 'S')
     # G.add_edge('C', 'S')
@@ -449,3 +466,4 @@ if __name__ == '__main__':
     print(pageRank(G, 1))
     toc = time.time()
     print(toc - tic)
+"""

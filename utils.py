@@ -2,6 +2,22 @@ import csv
 
 import networkx as nx
 from pathlib import Path
+from queue import PriorityQueue
+
+
+
+#Returns the top k nodes of G according to the centrality measure "measure"
+def top(G,cen,k):
+    pq = PriorityQueue()
+    for u in G.nodes():
+        x = -cen[u]
+        pq.put((x,u))  # We use negative value because PriorityQueue returns first values whose priority value is lower
+    
+    out={}
+    for i in range(k):
+        x = pq.get()
+        out[x[1]] = -x[0]
+    return out
 
 
 def create_graph_from_csv(filename, sep=',', directed=False):

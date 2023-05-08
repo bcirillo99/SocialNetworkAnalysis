@@ -1,4 +1,9 @@
 # This is a sample Python script.
+import sys
+ 
+# adding Folder_2 to the system path
+sys.path.insert(0, '../')
+
 import collections
 
 import networkx as nx
@@ -7,14 +12,28 @@ import math
 import numpy as np
 import time
 from utils import *
+from argparse import ArgumentParser
+
 
 import itertools as it
 
 
-def triangles(G: nx.Graph, nodes=None):
+
+
+#TRIANGLES
+#Standard algorithm for a directed or undirected graph
+#The problems of this algorithm are two:
+#- The same triangle is counted multiple times (six times)
+#- For each node, it requires to visit its neighborhood twice (and the neighborhood can be large).
+#  For triangles involving only nodes of large degree this cost cannot be avoided even if we count the triangle only once (i.e., we address the first issue).
+#  In other words these triangles are a bottleneck for the running time of this algorithm.
+#  For the remaining triangles, if u is the node of smaller degree, then the time needed to find them is reasonable.
+def triangles(G, nodes=None):
     """
-    Algoritmo standard per il conteggio dei triangoli in un grafo indiretto o diretto
-    :param G: grafo della libreria networkx
+    Standard algorithm for counting triangles in an indirect or direct graph
+
+    Arguments:
+        G: graph
     :return: numero di triangoli di un grafo indiretto
     """
     triangles = 0
@@ -170,28 +189,30 @@ def eigen_triangles(G: nx):
     triangles = np.sum(eigen_values ** 3)
     return triangles * scalar_factor
 
+#Optimized algorithm
+#There are two optimizations.
+#
+#OPTIMIZATION1: It consider an order among nodes. Specifically, nodes are ordered by degree. In case of nodes with the same degree, nodes are ordered by label.
+#In this way a triangle is counted only once. Specifically, from the node with smaller degree to the one with larger degree.
+def less(G, edge):
+    if G.degree(edge[0]) < G.degree(edge[1]):
+        return 0
+    if G.degree(edge[0]) == G.degree(edge[1]) and edge[0] < edge[1]:
+        return 0
+    return 1
 
-# ----------------------
-# OPTIMIZTION2: It distinguishes between high-degree nodes (called heavy hitters) and low-degree nodes. Triangles
-# involving only heavy hitters (that have been recognized to be the bottleneck of the naive algorithm) are handled in
-# a different way respect to remaining triangles.
+#OPTIMIZTION2: It distinguishes between high-degree nodes (called heavy hitters) and low-degree nodes.
+#Triangles involving only heavy hitters (that have been recognized to be the bottleneck of the naive algorithm) are handled in a different way respect to remaining triangles.
 def num_triangles(G):
-    def less(G, edge):
-        if G.degree(edge[0]) < G.degree(edge[1]):
-            return 0
-        if G.degree(edge[0]) == G.degree(edge[1]) and edge[0] < edge[1]:
-            return 0
-        return 1
-
     num_triangles = 0
     m = nx.number_of_edges(G)
 
-    # The set of heavy hitters, that is nodes with degree at least sqrt(m) Note: the set contains at most sqrt(m)
-    # nodes, since num_heavy_hitters*sqrt(m) must be at most the sum of degrees = 2m Note: the choice of threshold
-    # sqrt(m) is the one that minimize the running time of the algorithm. A larger value of the threshold implies a
-    # faster processing of triangles containing only heavy hitters, but a slower processing of remaining triangles. A
-    # smaller value of the threshold implies the reverse.
-    heavy_hitters = set()
+    # The set of heavy hitters, that is nodes with degree at least sqrt(m)
+    # Note: the set contains at most sqrt(m) nodes, since num_heavy_hitters*sqrt(m) must be at most the sum of degrees = 2m
+    # Note: the choice of threshold sqrt(m) is the one that minimize the running time of the algorithm.
+    # A larger value of the threshold implies a faster processing of triangles containing only heavy hitters, but a slower processing of remaining triangles.
+    # A smaller value of the threshold implies the reverse.
+    heavy_hitters=set()
     for u in G.nodes():
         if G.degree(u) >= math.sqrt(m):
             heavy_hitters.add(u)
@@ -199,20 +220,21 @@ def num_triangles(G):
     # Number of triangles among heavy hitters.
     # It considers all possible triples of heavy hitters, and it verifies if it forms a triangle.
     # The running time is then O(sqrt(m)^3) = m*sqrt(m)
-    for triple in it.combinations(heavy_hitters, 3):
-        if G.has_edge(triple[0], triple[1]) and G.has_edge(triple[1], triple[2]) and G.has_edge(triple[0], triple[2]):
-            num_triangles += 1
+    for triple in it.combinations(heavy_hitters,3):
+        if G.has_edge(triple[0],triple[1]) and G.has_edge(triple[1], triple[2]) and G.has_edge(triple[2], triple[0]):
+            num_triangles+=1
 
-    # Number of remaining triangles. For each edge, if one of the endpoints is not an heavy hitter, verifies if there
-    # is a node in its neighborhood that forms a triangle with the other endpoint. This is essentially the naive
-    # algorithm optimized to count only ordered triangle in which the first vertex (i.e., u) is not an heavy hitter.
-    # Since the size of the neighborhood of a non-heavy hitter is at most sqrt(m), the complexity is O(m*sqrt(m))
+    # Number of remaining triangles.
+    # For each edge, if one of the endpoints is not an heavy hitter, verifies if there is a node in its neighborhood that forms a triangle with the other endpoint.
+    # This is essentially the naive algorithm optimized to count only ordered triangle in which the first vertex (i.e., u) is not an heavy hitter.
+    # Since the size of the neighborhood of a non heavy hitter is at most sqrt(m), the complexity is O(m*sqrt(m))
     for edge in G.edges():
-        sel = less(G, edge)
-        if edge[sel] not in heavy_hitters:
-            for u in G[edge[sel]]:
-                if less(G, [u, edge[1 - sel]]) and G.has_edge(u, edge[1 - sel]):
-                    num_triangles += 1
+        if edge[0] != edge[1]:
+            sel=less(G,edge)
+            if edge[sel] not in heavy_hitters:
+                for u in G[edge[sel]]:
+                    if less(G,[u,edge[1-sel]]) and G.has_edge(u,edge[1-sel]) and u!=edge[1-sel] and u!=G[edge[sel]]:
+                        num_triangles +=1
 
     return num_triangles
 
@@ -220,61 +242,125 @@ def num_triangles(G):
 if __name__ == '__main__':
     # Test e Analisi delle tempistiche
 
-    # grafo indiretto
-    # G = create_graph_from_csv('../data/musae_facebook_edges.csv')
-    # G = nx.complete_graph(50)
-    # print(eigen_triangles(G))
-    G = nx.Graph()
-    G.add_edge(1, 3)
-    G.add_edge(3, 5)
-    G.add_edge(1, 2)
-    G.add_edge(2, 3)
-    G.add_edge(3, 4)
-    G.add_edge(4, 5)
-    G.add_edge(2, 4)
-    G.add_edge(1, 5)
+    parser = ArgumentParser()
+    parser.add_argument('--n_jobs', help='numero di processi', type=int, default=4)
+    parser.add_argument('--file_name', help='noem file di testo su cui salvare i risultati', type=str, default="triangles.txt")
+    
+    args = parser.parse_args()
 
-    l = [1, 2, 3, 4, 5]
+    n_jobs = args.n_jobs
+    file_name = args.file_name
 
-    # print(eigen_triangles(G))
-    # print("standard", triangles(G))
-    # tic = time.time()
-    # = sum(nx.triangles(G).values()) / 3
-    # print(counter_net)
-    # toc = time.time()
-    # print(f'networkx: {toc - tic}s, counter: {counter_net}')
-    # tic = time.time()
-    # counter = triangles_nodeIteratorN(G)
-    # toc = time.time()
-    #
-    # print(f'nodeIteratorN: {toc - tic}s, counter: {counter}, error: {counter - counter_net}')
-    # tic = time.time()
-    # counter = triangles(G)
-    # # print(triangles_list)
-    # toc = time.time()
-    # print(f'algoritmo standard: {toc - tic}s, counter: {counter}, error: {counter - counter_net}')
-    # tic = time.time()
-    # counter = triangles_nodeIteratorPlusPlus(G)
-    # toc = time.time()
-    # print(f'nodeIterator++: {toc - tic}s, counter: {counter}, error: {counter - counter_net}')
-    # tic = time.time()
-    # counter = parallel_triangles(G, 4)
-    # toc = time.time()
-    # print(f'nodeIteratorNParallelo: {toc - tic}s, counter: {counter}')
+    G1 = create_graph_from_csv('../data/musae_facebook_edges.csv')
+    G2 = create_graph_from_txt('../data/Cit-HepTh.txt', sep='\t', directed=True)
+    
+    with open(file_name,"w") as fp:
+        ##################################################################################
+        #################################### Facebook ####################################  
+        ##################################################################################
 
-    # grafo diretto
-    #
-    # G2 = nx.DiGraph()
-    #
-    G2 = create_graph_from_csv('../data/musae_facebook_edges.csv')
-    tic = time.time()
-    # counter = triangles(G2)
-    toc = time.time()
-    print(parallel_triangles(G2, 4))
-    print(triangles_nodeIteratorN(G2))
-    # print(f'time: {toc - tic}s, counter: {counter}')
-    # tic = time.time()
-    # print("counter dfs", dfs_triangles(G2))
-    # print("eigen", eigen_triangles(G2))
-    # toc = time.time()
-    # print(toc - tic)
+        s = f'Facebook\n\ndirected: {G1.is_directed()}, node: {G1.number_of_nodes()}, edges: {G1.number_of_edges()}'
+        fp.write(s+"\n\n")
+        print(s)
+
+        ################################### STANDARD ###################################
+        tic = time.time()
+        counter = triangles(G1)
+        toc = time.time()
+
+        t = f'Standard algo\ntime: {toc - tic}s, counter: {counter}'
+        fp.write(t+"\n\n")
+        print(t)
+
+        ################################### parallel STANDARD ###################################
+        tic = time.time()
+        counter = parallel_triangles(G1, n_jobs)
+        toc = time.time()
+
+        t = f'Parallel standard algo\ntime: {toc - tic}s, counter: {math.ceil(counter)}'
+        fp.write(t+"\n\n")
+        print(t)
+
+        ################################### OPTIMIZED ###################################
+        tic = time.time()
+        counter = num_triangles(G1)
+        toc = time.time()
+
+        t = f'Optimized algo\ntime: {toc - tic}s, counter: {counter}'
+        fp.write(t+"\n\n")
+        print(t)
+
+        ################################### NETWORKX ###################################
+        tic = time.time()
+        t = nx.triangles(G1)
+        counter=0
+        for n in t.values():
+            counter+=n
+        counter/=3
+        toc = time.time()
+
+        t = f'Networkx algo\ntime: {toc - tic}s, counter: {counter}'
+        fp.write(t+"\n\n")
+        print(t)
+
+        ################################### nodeIteratorPlusPlus ###################################
+        tic = time.time()
+        counter = triangles_nodeIteratorPlusPlus(G1)
+        toc = time.time()
+
+        t = f'nodeIteratorPlusPlus algo\ntime: {toc - tic}s, counter: {counter}'
+        fp.write(t+"\n\n")
+        print(t)
+
+        ################################### nodeIteratorN ###################################
+        tic = time.time()
+        counter = triangles_nodeIteratorN(G1)
+        toc = time.time()
+
+        t = f'nodeIteratorN algo\ntime: {toc - tic}s, counter: {counter}'
+        fp.write(t+"\n\n")
+        print(t)
+
+        ################################### parallel_nodeIteratorN ###################################
+        tic = time.time()
+        counter = parallel_nodeIteratorN(G1,n_jobs)
+        toc = time.time()
+
+        t = f'parallel_nodeIteratorN algo\ntime: {toc - tic}s, counter: {counter}'
+        fp.write(t+"\n\n")
+        print(t)
+        
+        ##################################################################################
+        #################################### Citation ####################################
+        ##################################################################################
+        
+        s = f'\nCitation Network\n\ndirected: {G2.is_directed()}, node: {G2.number_of_nodes()}, edges: {G2.number_of_edges()}'
+        fp.write(s+"\n\n")
+        print(s)
+
+        ################################### STANDARD ###################################
+        tic = time.time()
+        counter = triangles(G2)
+        toc = time.time()
+
+        t = f'Standard algo\ntime: {toc - tic}s, counter: {counter}'
+        fp.write(t+"\n\n")
+        print(t)
+
+        ################################### parallel STANDARD ###################################
+        tic = time.time()
+        counter = parallel_triangles(G2, n_jobs)
+        toc = time.time()
+
+        t = f'Parallel standard algo\ntime: {toc - tic}s, counter: {counter}'
+        fp.write(t+"\n\n")
+        print(t)
+
+        ################################### OPTIMIZED ###################################
+        tic = time.time()
+        counter = num_triangles(G2)
+        toc = time.time()
+
+        t = f'Optimized algo\ntime: {toc - tic}s, counter: {counter}'
+        fp.write(t+"\n\n")
+        print(t)

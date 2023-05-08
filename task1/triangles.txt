@@ -1,0 +1,4 @@
+Facebook
+
+directed: False, node: 22470, edges: 171002
+
