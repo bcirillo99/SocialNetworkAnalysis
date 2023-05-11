@@ -10,14 +10,31 @@ __all__ = ['auction']
 
 def auction(k: int, seller_net: set, reports: dict, bids: dict):
     """
-    :param k: intero che rappresenta il numero di elementi omogenei da vendere :param seller_net: bidder collegati
-    direttamente al seller, che conoscono le informazioni sull'asta
-    :param reports: dizionario che ha come chiavi i
-    bidder e come valori una lista di bidder a cui riportano le informazioni dell'asta
-    :param bids: dizionario che ha come chiavi differenti bidder e come valori le singole offerte
-    :return: due dizionari allocation e payment. Allocation ha come chiavi i bidder e come valore un booleano, che assume
-    valore True nel caso in cui il bidder ha ottenuto l'elemento altrimenti è False. Payment ha come chiavi i bidder e come
-    valori il prezzo pagato dal bidder. Nel caso in cui il pagamento è negativo rappresenta la ricompensa da parte del seller.
+    Parameters
+    ----------
+
+    k: int
+        is the number of item to sell;
+    seller_net: set of strings
+        is a set of strings each identifying a different bidder;
+    reports: dict
+        is a dictionary whose keys are strings each identifying a different bidder and whose 
+        values are sets of strings representing the set of bidders to which the bidder identified 
+        by the key reports the information about the auction;
+    bids: dict
+        is a dictionary whose keys are strings each identifying a different bidder and whose values
+        are numbers defining the bid of the bidder identified by that key
+
+    Returns
+    -------
+    allocation: dict
+        that is a dictionary that has as keys the strings identifying each of the bidders
+        that submitted a bid, and as value a boolean True if this bidder is allocated one of the items,
+        and False otherwise.
+    payments: dict
+        that is a dictionary that has as keys the strings identifying each of the bidders that
+        submitted a bid, and as value the price that she pays. Here, a positive price means that the
+        bidder is paying to the seller, while a negative price means that the seller is paying to the bidder.
     """
 
     payments = {}
@@ -41,6 +58,8 @@ def auction(k: int, seller_net: set, reports: dict, bids: dict):
         # calcolo del social welfare escludendo il bidder vincente
         sw1, _ = simulate_auction(k, reachable, bids)
         # calcolo del social welfare escludendo il bidder e l'item
+        if not allocation[bidder]:
+            bid = 0
         sw2 = sw - bid
         # regola di pagamento
         payments[bidder] = sw1 - sw2
