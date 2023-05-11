@@ -7,6 +7,7 @@ from utils import *
 from argparse import ArgumentParser
 from shapley import *
 from page_rank import *
+from voterank import *
 from hits import *
 import networkx as nx
 import random
@@ -103,12 +104,8 @@ if __name__ == '__main__':
     file_name = args.file_name
 
     #G1 = create_graph_from_csv('../data/musae_facebook_edges.csv')
-    G2 = create_graph_from_txt('../data/Cit-HepTh.txt', sep='\t', directed=True)
-    i=0
-    for u in G2.nodes():
-        if G2.in_degree(u) == 0:
-            i+=1
-    print(i)
+    #G2 = create_graph_from_txt('../data/Cit-HepTh.txt', sep='\t', directed=True)
+    
     G1 = nx.Graph()
     G1.add_edge('A', 'B')
     G1.add_edge('A','D')
@@ -185,6 +182,16 @@ if __name__ == '__main__':
         fp.write(t+"\n\n")
         print(t)
         #print(nx.pagerank(G1))
+
+        ################################### VoteRank ###################################
+        tic = time.time()
+        cen = voterank(G1)
+        toc = time.time()
+
+        t = f'VoteRank centrality\ntime: {toc - tic}s, top {k} nodes: {top(G1,cen,k)}'
+        fp.write(t+"\n\n")
+        print(t)
+        #print(nx.voterank(G1))
 
         ################################### shapley degree ###################################
         tic = time.time()
@@ -268,6 +275,16 @@ if __name__ == '__main__':
         t = f'Linear PageRank centrality\ntime: {toc - tic}s, top {k} nodes: {top(G2,cen,k)}'
         fp.write(t+"\n\n")
         print(t)
+
+        ################################### VoteRank ###################################
+        tic = time.time()
+        cen = voterank(G2)
+        toc = time.time()
+
+        t = f'VoteRank centrality\ntime: {toc - tic}s, top {k} nodes: {top(G1,cen,k)}'
+        fp.write(t+"\n\n")
+        print(t)
+        #print(nx.voterank(G2))
 
         ################################### HITS ###################################
         tic = time.time()
