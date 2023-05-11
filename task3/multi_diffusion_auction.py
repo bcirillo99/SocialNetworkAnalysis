@@ -171,7 +171,7 @@ def auction_mudar(k: int, seller_net: set, reports: dict, bids: dict):
 
     for bidder in Wa:
         allocations[bidder.name] = True
-
+    
     return payments, allocations
 
 
