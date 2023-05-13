@@ -6,6 +6,35 @@ from queue import PriorityQueue
 
 
 
+def BFS(G,u):
+    """
+    A BFS algorithm that returns the set of nodes reachable from u in the graph G
+
+    Parameters
+    ----------
+    G: nx.Graph or nx.DiGraph
+        A networkx undirected or directed graphs
+    u: node
+        A node of G
+
+    Returns
+    ---------
+    set:
+        the set of nodes reachable from u in the graph G
+    """
+    clevel=[u]
+    visited=set(u)
+    while len(clevel) > 0:
+        nlevel=[]
+        for c in clevel:
+            for v in G[c]:
+                if v not in visited:
+                    visited.add(v)
+                    nlevel.append(v)
+        clevel = nlevel
+    return visited
+
+
 #Returns the top k nodes of G according to the centrality measure "measure"
 def top(G,cen,k):
     pq = PriorityQueue()

@@ -13,4 +13,4 @@
 - 
 
 # Task4
-- bandit algor
+- bandit alg (Thompson sampling: Gaussian)

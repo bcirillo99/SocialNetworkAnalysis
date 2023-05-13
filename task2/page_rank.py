@@ -412,7 +412,8 @@ if __name__ == '__main__':
     p2 = linear_pageRank(G)
     print(top(G, p2, 4))
 
-"""    # collego ad S le pagine più popolari
+""" 
+    # collego ad S le pagine più popolari
     # G.add_edge('A', 'S')
     # G.add_edge('B', 'S')
     # G.add_edge('C', 'S')
