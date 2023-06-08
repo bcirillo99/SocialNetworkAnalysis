@@ -13,6 +13,7 @@ import numpy as np
 import time
 from utils import *
 from argparse import ArgumentParser
+import pandas as pd
 
 
 import itertools as it
@@ -252,115 +253,158 @@ if __name__ == '__main__':
     file_name = args.file_name
 
     G1 = create_graph_from_csv('../data/musae_facebook_edges.csv')
-    G2 = create_graph_from_txt('../data/Cit-HepTh.txt', sep='\t', directed=True)
+    G2 = create_graph_from_txt('../data/net_4.txt', sep=' ', directed=False)
+
+    dict_G1 = {'Algorithm':[], 'Time (s)':[], 'Triangles':[]}
+    dict_G2 = {'Algorithm':[], 'Time (s)':[], 'Triangles':[]}
     
-    with open(file_name,"w") as fp:
-        ##################################################################################
-        #################################### Facebook ####################################  
-        ##################################################################################
 
-        s = f'Facebook\n\ndirected: {G1.is_directed()}, node: {G1.number_of_nodes()}, edges: {G1.number_of_edges()}'
-        fp.write(s+"\n\n")
-        print(s)
+    ##################################################################################
+    #################################### Facebook ####################################  
+    ##################################################################################
 
-        ################################### STANDARD ###################################
-        tic = time.time()
-        counter = triangles(G1)
-        toc = time.time()
+    s = f'Facebook\n\ndirected: {G1.is_directed()}, node: {G1.number_of_nodes()}, edges: {G1.number_of_edges()}'
+    print(s)
 
-        t = f'Standard algo\ntime: {toc - tic}s, counter: {counter}'
-        fp.write(t+"\n\n")
-        print(t)
+    ################################### STANDARD ###################################
+    tic = time.time()
+    counter = triangles(G1)
+    toc = time.time()
+    exe_time = round(toc - tic, 3)
 
-        ################################### parallel STANDARD ###################################
-        tic = time.time()
-        counter = parallel_triangles(G1, n_jobs)
-        toc = time.time()
+    dict_G1["Algorithm"].append("Standard")
+    dict_G1["Time (s)"].append(exe_time)
+    dict_G1["Triangles"].append(counter)
 
-        t = f'Parallel standard algo\ntime: {toc - tic}s, counter: {math.ceil(counter)}'
-        fp.write(t+"\n\n")
-        print(t)
+    t = f'Standard algo\ntime: {exe_time}s, counter: {counter}'
+    print(t)
 
-        ################################### OPTIMIZED ###################################
-        tic = time.time()
-        counter = num_triangles(G1)
-        toc = time.time()
+    ################################### parallel STANDARD ###################################
+    tic = time.time()
+    counter = parallel_triangles(G1, n_jobs)
+    toc = time.time()
+    exe_time = round(toc - tic, 3)
 
-        t = f'Optimized algo\ntime: {toc - tic}s, counter: {counter}'
-        fp.write(t+"\n\n")
-        print(t)
+    dict_G1["Algorithm"].append("Parallel standard")
+    dict_G1["Time (s)"].append(exe_time)
+    dict_G1["Triangles"].append(counter)
 
-        ################################### NETWORKX ###################################
-        tic = time.time()
-        t = nx.triangles(G1)
-        counter=0
-        for n in t.values():
-            counter+=n
-        counter/=3
-        toc = time.time()
+    t = f'Parallel standard algo\ntime: {exe_time}s, counter: {math.ceil(counter)}'
+    print(t)
 
-        t = f'Networkx algo\ntime: {toc - tic}s, counter: {counter}'
-        fp.write(t+"\n\n")
-        print(t)
+    ################################### OPTIMIZED ###################################
+    tic = time.time()
+    counter = num_triangles(G1)
+    toc = time.time()
+    exe_time = round(toc - tic, 3)
 
-        ################################### nodeIteratorPlusPlus ###################################
-        tic = time.time()
-        counter = triangles_nodeIteratorPlusPlus(G1)
-        toc = time.time()
+    dict_G1["Algorithm"].append("Optimized")
+    dict_G1["Time (s)"].append(exe_time)
+    dict_G1["Triangles"].append(counter)
+    t = f'Optimized algo\ntime: {exe_time}s, counter: {counter}'
+    print(t)
 
-        t = f'nodeIteratorPlusPlus algo\ntime: {toc - tic}s, counter: {counter}'
-        fp.write(t+"\n\n")
-        print(t)
+    ################################### NETWORKX ###################################
+    tic = time.time()
+    t = nx.triangles(G1)
+    counter=0
+    for n in t.values():
+        counter+=n
+    counter/=3
+    toc = time.time()
+    exe_time = round(toc - tic, 3)
 
-        ################################### nodeIteratorN ###################################
-        tic = time.time()
-        counter = triangles_nodeIteratorN(G1)
-        toc = time.time()
+    dict_G1["Algorithm"].append("Networkx")
+    dict_G1["Time (s)"].append(exe_time)
+    dict_G1["Triangles"].append(counter)
+    t = f'Networkx algo\ntime: {exe_time}s, counter: {counter}'
+    print(t)
 
-        t = f'nodeIteratorN algo\ntime: {toc - tic}s, counter: {counter}'
-        fp.write(t+"\n\n")
-        print(t)
+    ################################### nodeIteratorPlusPlus ###################################
+    tic = time.time()
+    counter = triangles_nodeIteratorPlusPlus(G1)
+    toc = time.time()
+    exe_time = round(toc - tic, 3)
 
-        ################################### parallel_nodeIteratorN ###################################
-        tic = time.time()
-        counter = parallel_nodeIteratorN(G1,n_jobs)
-        toc = time.time()
+    dict_G1["Algorithm"].append("nodeIteratorPlusPlus")
+    dict_G1["Time (s)"].append(exe_time)
+    dict_G1["Triangles"].append(counter)
 
-        t = f'parallel_nodeIteratorN algo\ntime: {toc - tic}s, counter: {counter}'
-        fp.write(t+"\n\n")
-        print(t)
-        
-        ##################################################################################
-        #################################### Citation ####################################
-        ##################################################################################
-        
-        s = f'\nCitation Network\n\ndirected: {G2.is_directed()}, node: {G2.number_of_nodes()}, edges: {G2.number_of_edges()}'
-        fp.write(s+"\n\n")
-        print(s)
+    t = f'nodeIteratorPlusPlus algo\ntime: {exe_time}s, counter: {counter}'
+    print(t)
 
-        ################################### STANDARD ###################################
-        tic = time.time()
-        counter = triangles(G2)
-        toc = time.time()
+    ################################### nodeIteratorN ###################################
+    tic = time.time()
+    counter = triangles_nodeIteratorN(G1)
+    toc = time.time()
+    exe_time = round(toc - tic, 3)
 
-        t = f'Standard algo\ntime: {toc - tic}s, counter: {counter}'
-        fp.write(t+"\n\n")
-        print(t)
+    dict_G1["Algorithm"].append("nodeIteratorN")
+    dict_G1["Time (s)"].append(exe_time)
+    dict_G1["Triangles"].append(counter)
 
-        ################################### parallel STANDARD ###################################
-        tic = time.time()
-        counter = parallel_triangles(G2, n_jobs)
-        toc = time.time()
+    t = f'nodeIteratorN algo\ntime: {exe_time}s, counter: {counter}'
+    print(t)
 
-        t = f'Parallel standard algo\ntime: {toc - tic}s, counter: {counter}'
-        fp.write(t+"\n\n")
-        print(t)
+    ################################### parallel_nodeIteratorN ###################################
+    tic = time.time()
+    counter = parallel_nodeIteratorN(G1,n_jobs)
+    toc = time.time()
+    exe_time = round(toc - tic, 3)
 
-        ################################### OPTIMIZED ###################################
-        tic = time.time()
-        counter = num_triangles(G2)
-        toc = time.time()
+    dict_G1["Algorithm"].append("parallel_nodeIteratorN")
+    dict_G1["Time (s)"].append(exe_time)
+    dict_G1["Triangles"].append(counter)
 
-        t = f'Optimized algo\ntime: {toc - tic}s, counter: {counter}'
-        fp.write(t+"\n\n")
-        print(t)
+    t = f'parallel_nodeIteratorN algo\ntime: {exe_time}s, counter: {counter}'
+    print(t)
+    
+    df1 = pd.DataFrame(dict_G1, columns=['Algorithm', 'Time (s)', 'Triangles'])
+    print(df1)
+    df1.to_csv("triangles_musae_facebook_edges.csv", index=False)
+    ##################################################################################
+    #################################### Citation ####################################
+    ##################################################################################
+    
+    s = f'\nCitation Network\n\ndirected: {G2.is_directed()}, node: {G2.number_of_nodes()}, edges: {G2.number_of_edges()}'
+    print(s)
+
+    ################################### STANDARD ###################################
+    tic = time.time()
+    counter = triangles(G2)
+    toc = time.time()
+    exe_time = round(toc - tic, 3)
+
+    dict_G2["Algorithm"].append("Standard")
+    dict_G2["Time (s)"].append(exe_time)
+    dict_G2["Triangles"].append(counter)
+    t = f'Standard algo\ntime: {exe_time}s, counter: {counter}'
+    print(t)
+
+    ################################### parallel STANDARD ###################################
+    tic = time.time()
+    counter = parallel_triangles(G2, n_jobs)
+    toc = time.time()
+    exe_time = round(toc - tic, 3)
+
+    dict_G2["Algorithm"].append("Parallel standard")
+    dict_G2["Time (s)"].append(exe_time)
+    dict_G2["Triangles"].append(counter)
+    t = f'Parallel standard algo\ntime: {exe_time}s, counter: {counter}'
+    print(t)
+
+    ################################### OPTIMIZED ###################################
+    tic = time.time()
+    counter = num_triangles(G2)
+    toc = time.time()
+    exe_time = round(toc - tic, 3)
+
+    dict_G2["Algorithm"].append("Optimized")
+    dict_G2["Time (s)"].append(exe_time)
+    dict_G2["Triangles"].append(counter)
+
+    t = f'Optimized algo\ntime: {exe_time}s, counter: {counter}'
+    print(t)
+
+    df2 = pd.DataFrame(dict_G2, columns=['Algorithm', 'Time (s)', 'Triangles'])
+    df2.to_csv("triangles_Cit-HepTh.csv", index=False)

@@ -1,5 +1,7 @@
 import copy
 import networkx as nx
+import matplotlib.pyplot as plt
+import ast
 
 
 class Bidder:
@@ -50,6 +52,8 @@ def auction_mudan(k: int, seller_net: set, reports: dict, bids: dict):
             bv = Bidder(value, bids[value])
             G.add_edge(bk, bv)
 
+    """if k > len(bids.keys()):
+        k = len(bids.keys())"""
     remaining_items = k
 
     # lista contenente i buyer esplorati esclusi i vincitori
@@ -60,12 +64,14 @@ def auction_mudan(k: int, seller_net: set, reports: dict, bids: dict):
     else:
         A_W.sort(reverse=True)
         P = copy.deepcopy(A_W[:remaining_items])
-
-    while len(P) > 0 and remaining_items > 0:
-
+    W = set()
+    #while len(P) > 0 and remaining_items > 0:
+    i=0
+    while set(P)-W: 
         # selezione del bidder vincente dall'insieme dei potenziali vincitori
         winning_bidder = choice_winner(G, P)
         P.remove(winning_bidder)
+        W.add(winning_bidder)
 
         # settaggio del prezzo del vincitore
         pw = 0
@@ -81,16 +87,20 @@ def auction_mudan(k: int, seller_net: set, reports: dict, bids: dict):
         bidder_level = []
         for b in A_W:
             for nb in G[b]:
-                bidder_level.append(nb)
+                if nb not in A_W and nb not in W:
+                    bidder_level.append(nb)
         A_W = A_W + bidder_level
         A_W.remove(winning_bidder)
 
         # aggiornamento dei potenziali vincitori
+        
         if len(A_W) <= remaining_items:
             P = copy.deepcopy(A_W)
         else:
             A_W.sort(reverse=True)
             P = copy.deepcopy(A_W[:remaining_items])
+        """print("len P:", len(P))
+        print("len W:", len(W))"""
 
     return allocations, payments
 
@@ -129,7 +139,33 @@ def auction_mudar(k: int, seller_net: set, reports: dict, bids: dict):
     level = [seller]
     A = []  # visited
     A_W = []  # A/W
-    while len(level) > 0:
+
+    # lista contenente i buyer esplorati esclusi i vincitori
+
+    level = [bidder for bidder in G[seller]]
+    A_W = [bidder for bidder in G[seller]]
+    A = [bidder for bidder in G[seller]]
+    # inizializzazione di P
+    if len(A_W) <= k:
+        P = copy.deepcopy(A_W)
+    else:
+        A_W.sort(reverse=True)
+        P = copy.deepcopy(A_W[:k])
+    W = set()
+
+    while set(P)-W:
+        winning_bidder = choice_winner(G, P)
+        
+        # aggiornamento dell'insieme A_W
+        A_W.remove(winning_bidder)
+        # settaggio del prezzo
+        A.sort(reverse=True)
+        pw = 0
+        if k < len(A):
+            # a differenza di MUDAN nel calcolo del prezzo l'insieme utilizzato è A e non A_W
+            pw = A[k].bid
+        payments[winning_bidder.name] = pw
+        W.add(winning_bidder)
 
         # esplorazione dei bidder
         new_level = []
@@ -140,27 +176,13 @@ def auction_mudar(k: int, seller_net: set, reports: dict, bids: dict):
                     A.append(nb)
                     A_W.append(nb)
         level = new_level
-
         A_W.sort(reverse=True)
         # i potenziali vincitori sono i primi k + 1 buyer con la più alta valutazione
         P = A_W[:k]
         # scelta del vincitore dall'insieme dei potenziali vincitori
 
-        winning_bidder = choice_winner(G, P)
-        # aggiornamento dell'insieme A_W
-        A_W.remove(winning_bidder)
-
-        # settaggio del prezzo
-        A.sort(reverse=True)
-        pw = 0
-        if k < len(A):
-            # a differenza di MUDAN nel calcolo del prezzo l'insieme utilizzato è A e non A_W
-            pw = A[k].bid
-        payments[winning_bidder.name] = pw
-        W.append(winning_bidder)
-
     # calcolo delle ricompense
-    W.sort(reverse=True)
+    W = sorted(W,reverse=True)
     # insieme dei bidder che hanno ottenuto la ricompensa
     Wr = W[k:]
     # insieme dei bidder che hanno ottenuto l'elemento
@@ -172,42 +194,134 @@ def auction_mudar(k: int, seller_net: set, reports: dict, bids: dict):
     for bidder in Wa:
         allocations[bidder.name] = True
     
-    return payments, allocations
+    return allocations, payments
 
 
 def choice_winner(G, P):
     max_sigma = 0
-    winning_bidder = None
+    winning_bidder = P[0] #If all bidders have a 0 out_grade the first one is the winner
     for bidder in P:
-        r = G.degree(bidder)
+        
+        r = G.out_degree(bidder)
         if r > max_sigma:
             max_sigma = r
             winning_bidder = bidder
+    
     return winning_bidder
 
 
-def auction_results(allocations: dict, bids: dict):
-    rw = 0.
+def auction_results(allocations: dict, bids: dict, payments: dict):
+    rw = sum(payments.values())
     sw = 0.
     for bidder, alloc in allocations.items():
         if alloc:
             sw += bids[bidder]
-        else:
-            rw += bids[bidder]
+    print("sw: ",sw)
+    print("rw: ",rw)
     return sw, rw
 
 
 if __name__ == '__main__':
-    seller_net = {'a', 'b'}
-    reports = {'b': ['c'], 'c': ['d', 'e'], 'e': ['f'], 'f': ['g']}
-    bids = {'a': 3., 'b': 1, 'c': 1, 'd': 6, 'e': 4, 'f': 7, 'g': 5}
-    allocations, payments = auction_mudan(4, seller_net, reports, bids)
-    print(allocations, payments)
+    print("SSSSSS")
+    """seller_net = {'1'}
+    reports ={'1': ['2', '3', '4', '5', '6'], '2': ['7'], '3': ['8'], '4': ['9'], '5': ['10', '11'], '6': ['12'], '10': ['13', '14', '15'], '12': ['16'], '14': ['17'], '17': ['18'], '18': ['19'], '19': ['20']}
+    bids = {'1': 21, '2': 71, '3': 10, '4': 34, '5': 62, '6': 7, '7': 32, '8': 12, '9': 52, '10': 6, '11': 96, '12': 91, '13': 86, '14': 74, '15': 81, '16': 43, '17': 82, '18': 69, '19': 18, '20': 56}
+    print("MUDAR")
+    allocations, payments = auction_mudar(19, seller_net, reports, bids)
+    print("\npayments:")
+    print(payments)
+    print("\nallocation:")
+    print(allocations)
+    print(sum(payments.values()))
     print(auction_results(allocations, payments))
-    print(auction_mudar(4, seller_net, reports, bids))
-    # seller_net = {'a'}
-    # reports = {'a': ['d', 'c']}
-    # bids = {'a': 2, 'b': 3, 'c': 5, 'd': 6}
-    # print(auction_mudan(4, seller_net, reports, bids))
-    a = {1, 2, 3}
-    b = {4, 5, 6}
+
+    print("MUDAN")
+    allocations, payments = auction_mudan(19, seller_net, reports, bids)
+    print("\npayments:")
+    print(payments)
+    print("\nallocation:")
+    print(allocations)
+    print(sum(payments.values()))
+    print(auction_results(allocations, payments))"""
+
+    """seller_net = {'1'}
+    reports ={'1': ['2', '3', '4', '5', '6'], '2': ['7'], '3': ['8'], '4': ['9'], '5': ['10', '11'], '6': ['12'], '10': ['13', '14', '15'], '12': ['16'], '14': ['17'], '17': ['18'], '18': ['19'], '19': ['20']}
+    bids = {'1': 21, '2': 71, '3': 10, '4': 34, '5': 62, '6': 7, '7': 32, '8': 12, '9': 52, '10': 6, '11': 96, '12': 91, '13': 86, '14': 74, '15': 81, '16': 43, '17': 82, '18': 69, '19': 18, '20': 56}
+    print(bids)
+    print(sorted(list(bids.values()),reverse=True))
+    print("MUDAR")
+    allocations, payments = auction_mudar(18, seller_net, reports, bids)
+    print("\npayments:")
+    print(payments)
+    print("\nallocation:")
+    print(allocations)
+    print(sum(payments.values()))
+    print(auction_results(allocations, payments))
+
+
+    seller_net = {'6582'}
+    reports={'6582': ['11062'], '11062': ['893']}
+    bids = {'6582': 21, '893': 71, '11062': 10}
+    allocations, payments = auction_mudar(1, seller_net, reports, bids)
+    print("\npayments:")
+    print(payments)
+    print("\nallocation:")
+    print(allocations)
+    print(sum(payments.values()))
+    print(auction_results(allocations, payments))"""
+    """
+    with open("data.txt", "r") as f:
+        seller_net = ast.literal_eval(f.readline())
+        reports = ast.literal_eval(f.readline())
+        bids = ast.literal_eval(f.readline())
+        k = int(f.readline())
+
+    allocations, payments = auction_mudar(k, seller_net, reports, bids)
+
+    print(sum(payments.values()))
+    auction_results(allocations,bids, payments)
+
+    with open("data.txt", "r") as f:
+        seller_net = ast.literal_eval(f.readline())
+        reports = ast.literal_eval(f.readline())
+        bids = ast.literal_eval(f.readline())
+        k = int(f.readline())
+
+    allocations, payments = auction_mudan(k, seller_net, reports, bids)
+
+
+    print(sum(payments.values()))
+    auction_results(allocations,bids, payments)"""
+
+    """seller_net = {'1'}
+    reports ={'1': ['2', '3', '4', '5', '6'], '2': ['7'], '3': ['8'], '4': ['9'], '5': ['10', '11'], '6': ['12'], '10': ['13', '14', '15'], '12': ['16'], '14': ['17'], '17': ['18'], '18': ['19'], '19': ['20']}
+    bids = {'1': 21, '2': 71, '3': 10, '4': 34, '5': 62, '6': 7, '7': 32, '8': 12, '9': 52, '10': 6, '11': 96, '12': 91, '13': 86, '14': 74, '15': 81, '16': 43, '17': 82, '18': 69, '19': 18, '20': 56}
+    allocations, payments = auction_mudan(555, seller_net, reports, bids)
+    print("MUDAN K: ",555)
+    auction_results(allocations,bids, payments)"""
+
+    seller_net = {'1'}
+    reports ={'1': ['2', '3', '4', '5', '6'], '2': ['7'], '3': ['8'], '4': ['9'], '5': ['10', '11'], '6': ['12'], '10': ['13', '14', '15'], '12': ['16'], '14': ['17'], '17': ['18'], '18': ['19'], '19': ['20']}
+    bids = {'1': 21, '2': 71, '3': 10, '4': 34, '5': 62, '6': 7, '7': 32, '8': 12, '9': 52, '10': 6, '11': 96, '12': 91, '13': 86, '14': 74, '15': 81, '16': 43, '17': 82, '18': 69, '19': 18, '20': 56}
+    allocations, payments = auction_mudan(18, seller_net, reports, bids)
+    print("MUDAN K: ",18)
+    """print("\npayments:")
+    print(payments)
+    print("\nallocation:")
+    print(allocations)"""
+    print(sum(payments.values()))
+    auction_results(allocations,bids, payments)
+
+    seller_net = {'1'}
+    reports ={'1': ['2', '3', '4', '5', '6'], '2': ['7'], '3': ['8'], '4': ['9'], '5': ['10', '11'], '6': ['12'], '10': ['13', '14', '15'], '12': ['16'], '14': ['17'], '17': ['18'], '18': ['19'], '19': ['20']}
+    bids = {'1': 21, '2': 71, '3': 10, '4': 34, '5': 62, '6': 7, '7': 32, '8': 12, '9': 52, '10': 6, '11': 96, '12': 91, '13': 86, '14': 74, '15': 81, '16': 43, '17': 82, '18': 69, '19': 18, '20': 56}
+    allocations, payments = auction_mudar(5, seller_net, reports, bids)
+    print("MUDAR K: ",555)
+    auction_results(allocations,bids, payments)
+    print("\npayments:")
+    print(payments)
+    print("\nallocation:")
+    print(allocations)
+
+    print("\n\n")
+    print({k: v for k, v in sorted(bids.items(), key=lambda item: item[1], reverse=True)})

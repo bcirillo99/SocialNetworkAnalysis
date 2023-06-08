@@ -1,4 +1,5 @@
 import networkx as nx
+from tqdm import tqdm
 
 #VOTERANK
 # The following is an extension of degree centrality, that tries to avoid to choose nodes that are too close each other
@@ -25,7 +26,7 @@ def voterank(G):
     f = 1/avg_deg #it sets the decrement of weight in the network
 
     ability = {i:1 for i in G.nodes()} #initially the vote of each node weights 1
-    for i in range(n):
+    for i in tqdm(range(n)):
         score = {i:0 for i in G.nodes()}
 
         for e in G.edges():

@@ -1,0 +1,8 @@
+Auction,T,Max,Avg,armset
+MUDAR,80000,36,2.6295875,normal
+MUDAR,80000,30,2.873225,pagerank
+MUDAR,80000,35,2.9790875,degree
+MUDAR,80000,38,2.8139,voterank
+MUDAR,80000,31,2.92085,shapley_degree
+MUDAR,80000,37,2.93805,shapley_threshold
+MUDAR,80000,30,2.806925,shapley_closeness

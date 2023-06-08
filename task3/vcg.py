@@ -1,40 +1,23 @@
+import ast
 import copy
 
 import networkx as nx
 from collections import deque
 import random
 from tqdm import tqdm
-
-__all__ = ['auction']
+from multi_diffusion_auction import Bidder
 
 
 def auction(k: int, seller_net: set, reports: dict, bids: dict):
     """
-    Parameters
-    ----------
-
-    k: int
-        is the number of item to sell;
-    seller_net: set of strings
-        is a set of strings each identifying a different bidder;
-    reports: dict
-        is a dictionary whose keys are strings each identifying a different bidder and whose 
-        values are sets of strings representing the set of bidders to which the bidder identified 
-        by the key reports the information about the auction;
-    bids: dict
-        is a dictionary whose keys are strings each identifying a different bidder and whose values
-        are numbers defining the bid of the bidder identified by that key
-
-    Returns
-    -------
-    allocation: dict
-        that is a dictionary that has as keys the strings identifying each of the bidders
-        that submitted a bid, and as value a boolean True if this bidder is allocated one of the items,
-        and False otherwise.
-    payments: dict
-        that is a dictionary that has as keys the strings identifying each of the bidders that
-        submitted a bid, and as value the price that she pays. Here, a positive price means that the
-        bidder is paying to the seller, while a negative price means that the seller is paying to the bidder.
+    :param k: intero che rappresenta il numero di elementi omogenei da vendere
+    :param seller_net: bidder collegati direttamente al seller
+    :param reports: dizionario che ha come chiavi i
+    bidder e come valori una lista di bidder a cui riportano le informazioni dell'asta
+    :param bids: dizionario che ha  come chiavi differenti bidder e come valori le singole offerte
+    :return: due dizionari allocation e payment. Allocation ha come chiavi i bidder e come valore un booleano, che assume
+    valore True nel caso in cui il bidder ha ottenuto l'elemento altrimenti è False. Payment ha come chiavi i bidder e come
+    valori il prezzo pagato dal bidder. Nel caso in cui il pagamento è negativo rappresenta la ricompensa da parte del seller.
     """
 
     payments = {}
@@ -48,22 +31,24 @@ def auction(k: int, seller_net: set, reports: dict, bids: dict):
         for value in reports[key]:
             G.add_edge(key, value)
 
+    bidder_list = [Bidder(bidder, bids[bidder]) for bidder in list(bids.keys())]
+    bidder_list.sort(reverse=True)
     # social welfare dell'allocazione efficiente
-    sw, allocation = simulate_auction(k, list(bids.keys()), bids)
-    # calcolo dei prezzi per ogni bidder
+    sw, allocation = simulate_auction2(k, list(bids.keys()), bids)
 
-    for bidder, bid in tqdm(bids.items()):
-        # ricerca degli offerenti che ricevono le informazioni sull'asta in assenza di "bidder"
+    # calcolo dei prezzi per ogni bidder
+    for bidder, bid in bids.items():
+        # ricerca degli offerenti che ricevono le informazioni sull'asta in assenza del bidder
         reachable = information_diffusion(G, bidder)
         # calcolo del social welfare escludendo il bidder vincente
-        sw1, _ = simulate_auction(k, reachable, bids)
-        # calcolo del social welfare escludendo il bidder e l'item
+        sw1, _ = simulate_auction2(k, reachable, bids)
+
         if not allocation[bidder]:
             bid = 0
+        # calcolo del social welfare escludendo il bidder e l'item
         sw2 = sw - bid
         # regola di pagamento
         payments[bidder] = sw1 - sw2
-
     return allocation, payments
 
 
@@ -93,6 +78,26 @@ def simulate_auction(k, bidders: list, bids: dict):
 
     return sw, allocation
 
+def critical_sequence(G: nx.DiGraph,node,root):
+    cs = [node]
+    if node!=root:
+        while len(list(G.predecessors(node))) == 1 and list(G.predecessors(node))[0]!=root:
+            node = list(G.predecessors(node))[0]
+            cs.append(node)
+    return cs
+
+def simulate_auction2(k, bidders: list, bids: dict):
+    bidder_list = [Bidder(bidder, bids[bidder]) for bidder in bidders]
+    bidder_list.sort(reverse=True)
+    winners = bidder_list[:k]
+    
+    sw = 0
+    allocations = {bidder.name: False for bidder in bidder_list}
+    for winning_bidder in winners:
+        sw += winning_bidder.bid
+        allocations[winning_bidder.name] = True
+    return sw, allocations
+
 
 def information_diffusion(G: nx.DiGraph, bidder, seller='seller'):
     """
@@ -109,37 +114,61 @@ def information_diffusion(G: nx.DiGraph, bidder, seller='seller'):
 
         n = level.popleft()
         for c in G[n]:
-            if (c not in visited) and (c is not bidder):
+            if (c not in visited) and (c != bidder):
                 level.append(c)
                 visited.append(c)
     # escludo il nodo seller
     return visited[1:]
 
+def auction_results(allocations: dict, bids: dict, payments: dict):
+    rw = sum(payments.values())
+    sw = 0.
+    for bidder, alloc in allocations.items():
+        if alloc:
+            sw += bids[bidder]
+    print("sw: ",sw)
+    print("rw: ",rw)
+    return sw, rw
 
-# SECOND PRICE AUCTION E VCG
-bids = {'A': 2, 'B': 30, 'C': 27, 'D': 25, 'E': 12, 'F': 5, 'G': 2, 'S': 100, 'T': 10, 'H': 20}
-seller_net = {'A', 'B', 'C', 'D', 'E', 'F', 'S', 'G', 'T', 'H'}
-reports = {}
-# Notiamo che il bidder S è il più alto offerente e paga quanto la seconda offerta più alta
-print(auction(1, seller_net, reports, bids))
+if __name__ == '__main__':
 
-# EFFETTO DELLA DIFFUSIONE
-# bids = {'A': 2, 'B': 30, 'C': 27, 'D': 25, 'E': 12, 'F': 5, 'G': 2, 'S': 100, 'T': 10, 'H': 20}
-# seller_net = {'A', 'B', 'C', 'D', 'E', 'F', 'G','T','H'}
-# reports = {'A':['S']}
-# Notiamo che A non ottiene l'elemento ma riportando l'informazione a S (bidder vincente),
-# ottiene una ricompensa dal seller
-# print(auction(3, seller_net, reports, bids))
+    
+    seller_net = {'1'}
+    reports ={'1': ['2', '3', '4', '5', '6'], '2': ['7'], '3': ['8'], '4': ['9'], '5': ['10', '11'], '6': ['12'], '10': ['13', '14', '15'], '12': ['16'], '14': ['17'], '17': ['18'], '18': ['19'], '19': ['20']}
+    bids = {'1': 21, '2': 71, '3': 10, '4': 34, '5': 62, '6': 7, '7': 32, '8': 12, '9': 52, '10': 6, '11': 96, '12': 91, '13': 86, '14': 74, '15': 81, '16': 43, '17': 82, '18': 69, '19': 18, '20': 56}
+    allocations, payments = auction(555, seller_net, reports, bids)
+    print("K: ",555)
+    print("\npayments:")
+    print(payments)
+    print("\nallocation:")
+    print(allocations)
+    auction_results(allocations,bids, payments)
 
-# PROPOSITION 1.
-# VCG con diffusione dell'informazione non permette di ottenere un'alta ricompensa per il seller, in questo
-# caso il seller è in perdita
-# seller_net = {'a'}
-# reports = {'a': ['b'], 'b': ['c'], 'c': ['d']}
-# bids = {'a': 0, 'b': 0, 'c': 0, 'd': 1}
-# print(auction(3, seller_net, reports, bids))
+    seller_net = {'1'}
+    reports ={'1': ['2', '3', '4', '5', '6'], '2': ['7'], '3': ['8'], '4': ['9'], '5': ['10', '11'], '6': ['12'], '10': ['13', '14', '15'], '12': ['16'], '14': ['17'], '17': ['18'], '18': ['19'], '19': ['20']}
+    bids = {'1': 21, '2': 71, '3': 10, '4': 34, '5': 62, '6': 7, '7': 32, '8': 12, '9': 52, '10': 6, '11': 96, '12': 91, '13': 86, '14': 74, '15': 81, '16': 43, '17': 82, '18': 69, '19': 18, '20': 56}
+    allocations, payments = auction(18, seller_net, reports, bids)
+    print("K: ",18)
+    print("\npayments:")
+    print(payments)
+    print("\nallocation:")
+    print(allocations)
+    print(sum(payments.values()))
+    auction_results(allocations,bids, payments)
 
-seller_net = {'a', 'c'}
-reports = {'a': ['b', 'd'], }
-bids = {'a': 20, 'b': 100, 'c': 5, 'd': 10}
-print(auction(3, seller_net, reports, bids))
+    print("a" not in "a")
+
+"""    with open("data.txt", "r") as f:
+        seller_net = ast.literal_eval(f.readline())
+        reports = ast.literal_eval(f.readline())
+        bids = ast.literal_eval(f.readline())
+        k = int(f.readline())
+
+
+
+    allocations, payments = auction(k, seller_net, reports, bids)
+
+    print(sum(payments.values()))
+    auction_results(allocations,bids, payments)"""
+
+

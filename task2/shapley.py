@@ -1,5 +1,7 @@
 # This is a sample Python script.
 import sys
+
+from tqdm import tqdm
  
 # adding Folder_2 to the system path
 sys.path.insert(0, '../')
@@ -60,8 +62,8 @@ def shapley_threshold(G, k=2):
     if G.is_directed():
       SV = {i:min(1,k/(1+G.in_degree(i))) for i in G.nodes()}
       for u in G.nodes():
-          print(G.in_degree(u),u)
-          weight = max(0,(G.in_degree(u) - k + 1)/G.in_degree(u))
+          weight = max(0,(G.degree(u) - k + 1)/G.degree(u))
+          #weight = max(0,(G.in_degree(u) - k + 1)/G.in_degree(u)) # dovrebbe essere in ma pure con out ci srta 0
           for v in G[u]:
               SV[u] += weight * 1/(1+G.in_degree(v))
     else:
@@ -78,7 +80,7 @@ def positive_decr_fun(x):
 
 def shapley_closeness(G, f):
     SV = {i:0 for i in G.nodes()}
-    for u in G.nodes():
+    for u in tqdm(G.nodes()):
         distances_dict = BFS(G, u)
         d,w = list(distances_dict.values()),list(distances_dict.keys())
         if G.is_directed():

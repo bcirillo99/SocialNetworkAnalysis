@@ -48,6 +48,19 @@ def top(G,cen,k):
         out[x[1]] = -x[0]
     return out
 
+#Returns the top k nodes of G according to the centrality measure "measure"
+def bottom(G,cen,k):
+    pq = PriorityQueue()
+    for u in G.nodes():
+        x = cen[u]
+        pq.put((x,u))  # We use negative value because PriorityQueue returns first values whose priority value is lower
+    
+    out={}
+    for i in range(k):
+        x = pq.get()
+        out[x[1]] = -x[0]
+    return out
+
 
 def create_graph_from_csv(filename, sep=',', directed=False):
     path = Path(filename)
@@ -63,13 +76,15 @@ def create_graph_from_csv(filename, sep=',', directed=False):
         reader = csv.reader(f, delimiter=sep)
         # l'intestazione del csv non viene considerata
         header = next(reader)
+        #header =1
         if header is not None:
             for row in reader:
                 if len(row) == 2:
                     u, v = row
                     G.add_edge(u, v)
                 else:
-                    raise ValueError('Format File Error!')
+                    u, v, _, _ = row
+                    G.add_edge(u, v)
 
     return G
 

@@ -1,0 +1,4 @@
+Algorithm,Time (s),Diameter
+Standard,217.702,37
+Parallel standard,95.147,37
+Optimized,0.21,5

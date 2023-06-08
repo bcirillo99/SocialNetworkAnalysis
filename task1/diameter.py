@@ -8,6 +8,10 @@ from joblib import Parallel, delayed
 import time
 from utils import *
 from argparse import ArgumentParser
+import pandas as pd
+import random
+from tqdm import tqdm
+import numpy
 
 #DIAMETER
 #Classical algorithm: if runs a BFS for each node, and returns the height of the tallest BFS tree
@@ -98,6 +102,53 @@ def stream_diam(G):
 
     return step
 
+def GenWS2DG(n, r, k, q):
+    G = nx.Graph()
+    nodes=dict() #This will be used to associate to each node its coordinates
+    prob=dict() #Keeps for each pair of nodes (u,v) the term 1/dist(u,v)**q
+
+    # dim is the dimension of the area in which we assume nodes are placed.
+    # Here, we assume that the 2D area has dimension sqrt(n) x sqrt(n).
+    # Anyway, one may consider a larger or a smaller area.
+    # E.g., if dim = 1 we assume that all features of a nodes are within [0,1].
+    # However, recall that the radius r given in input must be in the same order of magnitude as the size of the area
+    # (e.g., you cannot consider the area as being a unit square, and consider a radius 2, otherwise there will be an edge between each pair of nodes)
+    # Hence, the choice of larger values for dim can be preferred if one want to represent r as an integer and not a floating point number
+    dim = math.sqrt(n)
+
+    # The following for loop creates n nodes and place them randomly in the 2D area.
+    # If one want to consider a different placement, e.g., for modeling communities, one only need to change this part.
+    for i in range(n):
+        x=random.random()
+        y=random.random()
+        nodes[i]=(x*dim,y*dim)
+        prob[i]=dict()
+
+    for i in tqdm(range(n)):
+        # Strong-ties
+        for j in range(i+1,n):
+            # we add edge only towards next nodes,
+            # since edge to previous nodes have been added when these nodes have been processed
+            dist = math.sqrt((nodes[i][0]-nodes[j][0])**2 + (nodes[i][1]-nodes[j][1])**2) #Euclidean Distance
+            prob[i][j] = 1/(dist**q)
+            prob[j][i] = prob[i][j]
+            if dist <= r:
+                G.add_edge(str(i), str(j))
+
+        # Terms 1/dist(u,v)**q are not probabilities since their sum can be different from 1.
+        # To translate them in probabilities we normalize them, i.e, we divide each of them for their sum
+        norm=sum(prob[i].values())
+        # Weak ties
+        for h in range(k):
+            # They are not exactly h, since the random choice can return a node s such that edge (i, s) already exists
+            # Next instruction allows to choice from the list given as first argument according to the probability distribution given as second argument
+            s=numpy.random.choice([x for x in range(n) if x != i],p=[prob[i][x]/norm for x in range(n) if x != i])
+            G.add_edge(str(i), str(s))
+
+    return G
+
+
+
 
 if __name__ == '__main__':
     # Test e Analisi delle tempistiche
@@ -111,93 +162,177 @@ if __name__ == '__main__':
     n_jobs = args.n_jobs
     file_name = args.file_name
 
-    G1 = create_graph_from_csv('../data/musae_facebook_edges.csv')
-    G2 = create_graph_from_txt('../data/Cit-HepTh.txt', sep='\t', directed=True)
+    G2 = create_graph_from_txt('../data/net_4.txt', sep=' ', directed=False)
+    """tic = time.time()
+    diam = parallel_diam(G2, n_jobs)
+    toc = time.time()
+    exe_time = round(toc - tic, 3)"""
+    dict_G1 = {'Algorithm':[], 'Time (s)':[], 'Diameter':[], 'Nodes': [], "Edges":[], "r":[], "k":[]}
+    dict_G1["Algorithm"].append("net_4")
+    dict_G1["Time (s)"].append(1)
+    dict_G1["Diameter"].append(68)
+    dict_G1["Nodes"].append(G2.number_of_nodes())
+    dict_G1["Edges"].append(G2.number_of_edges())
+    dict_G1["r"].append(0)
+    dict_G1["k"].append(0)
+    print(dict_G1)
+
+    G1 = GenWS2DG(20000, 2.7, 1, 4)
+    tic = time.time()
+    diam = parallel_diam(G1, n_jobs)
+    toc = time.time()
+    exe_time = round(toc - tic, 3)
+    dict_G1["Algorithm"].append("GenWS2DG")
+    dict_G1["Time (s)"].append(exe_time)
+    dict_G1["Diameter"].append(diam)
+    dict_G1["Nodes"].append(G1.number_of_nodes())
+    dict_G1["Edges"].append(G1.number_of_edges())
+    dict_G1["r"].append(1)
+    dict_G1["k"].append(1)
+    t = f'Parallel standard algo\ntime: {exe_time}s, diameter: {diam}'
+    df1 = pd.DataFrame(dict_G1, columns=['Algorithm', 'Time (s)', 'Diameter', 'Nodes', 'Edges','r','k'])
+    print(df1)
     
-    with open(file_name,"w") as fp:
-        ##################################################################################
-        #################################### Facebook ####################################    
-        ##################################################################################
-        
-        s = f'Facebook\n\ndirected: {G1.is_directed()}, node: {G1.number_of_nodes()}, edges: {G1.number_of_edges()}'
-        fp.write(s+"\n\n")
-        print(s)
-        
-        ################################### STANDARD ###################################
-        tic = time.time()
-        diam = diameter(G1)
-        toc = time.time()
 
-        t = f'Standard algo\ntime: {toc - tic}s, diameter: {diam}'
-        fp.write(t+"\n\n")
-        print(t)
+    for r in numpy.arange(0.5, 1.1, 0.1):
+        for k in range(10,8002):
+            print(k)
+            G1 = GenWS2DG(20000, r, k, 2)
 
-        ################################### parallel STANDARD ###################################
-        tic = time.time()
-        diam = parallel_diam(G1, n_jobs)
-        toc = time.time()
 
-        t = f'Parallel standard algo\ntime: {toc - tic}s, diameter: {diam}'
-        fp.write(t+"\n\n")
-        print(t)
+            tic = time.time()
+            diam = parallel_diam(G1, n_jobs)
+            toc = time.time()
+            exe_time = round(toc - tic, 3)
+            dict_G1["Algorithm"].append("GenWS2DG")
+            dict_G1["Time (s)"].append(exe_time)
+            dict_G1["Diameter"].append(diam)
+            dict_G1["Nodes"].append(G1.number_of_nodes())
+            dict_G1["Edges"].append(G1.number_of_edges())
+            dict_G1["r"].append(r)
+            dict_G1["k"].append(k)
+            t = f'Parallel standard algo\ntime: {exe_time}s, diameter: {diam}'
+            df1 = pd.DataFrame(dict_G1, columns=['Algorithm', 'Time (s)', 'Diameter', 'Nodes', 'Edges','r','k'])
+            print(df1)
 
-        ################################### OPTIMIZED ###################################
-        tic = time.time()
-        diam = stream_diam(G1)
-        toc = time.time()
 
-        t = f'Optimized algo\ntime: {toc - tic}s, diameter: {diam}'
-        fp.write(t+"\n\n")
-        print(t)
+    df1 = pd.DataFrame(dict_G1, columns=['Algorithm', 'Time (s)', 'Diameter', 'Nodes', 'Edges','r','k'])
+    print(df1)
+    df1.to_csv("prova.csv", index=False)
 
-        ################################### NETWORKX ###################################
-        tic = time.time()
-        diam = nx.diameter(G1)
-        toc = time.time()
+    """G1 = create_graph_from_csv('../data/musae_facebook_edges.csv')
+    G2 = create_graph_from_txt('../data/Cit-HepTh.txt', sep='\t', directed=True)
 
-        t = f'Networkx algo\ntime: {toc - tic}s, diameter: {diam}'
-        fp.write(t+"\n\n")
-        print(t)
-        
-        ##################################################################################
-        #################################### Citation ####################################
-        ##################################################################################
+    #df = pd.DataFrame()
+    dict_G1 = {'Algorithm':[], 'Time (s)':[], 'Diameter':[]}
+    dict_G2 = {'Algorithm':[], 'Time (s)':[], 'Diameter':[]}
+    
+   
+    ##################################################################################
+    #################################### Facebook ####################################    
+    ##################################################################################
+    
+    s = f'Facebook\n\ndirected: {G1.is_directed()}, node: {G1.number_of_nodes()}, edges: {G1.number_of_edges()}'
+    print(s)
+    
+    ################################### STANDARD ###################################
+    tic = time.time()
+    diam = diameter(G1)
+    toc = time.time()
+    exe_time = round(toc - tic, 3)
 
-        s = f'\nCitation Network\n\ndirected: {G2.is_directed()}, node: {G2.number_of_nodes()}, edges: {G2.number_of_edges()}'
-        fp.write(s+"\n\n")
-        print(s)
-        
-        ################################### STANDARD ###################################
-        tic = time.time()
-        diam = diameter(G2)
-        toc = time.time()
+    dict_G1["Algorithm"].append("Standard")
+    dict_G1["Time (s)"].append(exe_time)
+    dict_G1["Diameter"].append(diam)
+    t = f'Standard algo\ntime: {exe_time}s, diameter: {diam}'
+    print(t)
 
-        t = f'Standard algo\ntime: {toc - tic}s, diameter: {diam}'
-        fp.write(t+"\n\n")
-        print(t)
+    ################################### parallel STANDARD ###################################
+    tic = time.time()
+    diam = parallel_diam(G1, n_jobs)
+    toc = time.time()
+    exe_time = round(toc - tic, 3)
 
-        ################################### parallel STANDARD ###################################
-        tic = time.time()
-        diam = parallel_diam(G2, n_jobs)
-        toc = time.time()
+    dict_G1["Algorithm"].append("Parallel standard")
+    dict_G1["Time (s)"].append(exe_time)
+    dict_G1["Diameter"].append(diam)
+    t = f'Parallel standard algo\ntime: {exe_time}s, diameter: {diam}'
+    print(t)
 
-        t = f'Parallel standard algo\ntime: {toc - tic}s, diameter: {diam}'
-        fp.write(t+"\n\n")
-        print(t)
+    ################################### OPTIMIZED ###################################
+    tic = time.time()
+    diam = stream_diam(G1)
+    toc = time.time()
+    exe_time = round(toc - tic, 3)
 
-        ################################### OPTIMIZED ###################################
-        tic = time.time()
-        diam = stream_diam(G2)
-        toc = time.time()
+    
+    dict_G1["Algorithm"].append("Optimized")
+    dict_G1["Time (s)"].append(exe_time)
+    dict_G1["Diameter"].append(diam)
+    t = f'Optimized algo\ntime: {exe_time}s, diameter: {diam}'
+    print(t)
 
-        t = f'Optimized algo\ntime: {toc - tic}s, diameter: {diam}'
-        fp.write(t+"\n\n")
+    ################################### NETWORKX ###################################
+    tic = time.time()
+    diam = nx.diameter(G1)
+    toc = time.time()
+    exe_time = round(toc - tic, 3)
 
-        ################################### NETWORKX ###################################
-        tic = time.time()
-        diam = nx.diameter(G2)
-        toc = time.time()
+    dict_G1["Algorithm"].append("Networkx")
+    dict_G1["Time (s)"].append(exe_time)
+    dict_G1["Diameter"].append(diam)
+    t = f'Networkx algo\ntime: {exe_time}s, diameter: {diam}'
+    print(t)
 
-        t = f'Networkx algo\ntime: {toc - tic}s, diameter: {diam}'
-        fp.write(t+"\n\n")
-        print(t)
+    df1 = pd.DataFrame(dict_G1, columns=['Algorithm', 'Time (s)', 'Diameter'])
+    print(df1)
+    df1.to_csv("diameter_musae_facebook_edges.csv", index=False)
+    
+    ##################################################################################
+    #################################### Citation ####################################
+    ##################################################################################
+
+    s = f'\nCitation Network\n\ndirected: {G2.is_directed()}, node: {G2.number_of_nodes()}, edges: {G2.number_of_edges()}'
+    print(s)
+    
+    ################################### STANDARD ###################################
+    tic = time.time()
+    diam = diameter(G2)
+    toc = time.time()
+    exe_time = round(toc - tic, 3)
+
+    dict_G2["Algorithm"].append("Standard")
+    dict_G2["Time (s)"].append(exe_time)
+    dict_G2["Diameter"].append(diam)
+    t = f'Standard algo\ntime: {exe_time}s, diameter: {diam}'
+    print(t)
+
+    ################################### parallel STANDARD ###################################
+    tic = time.time()
+    diam = parallel_diam(G2, n_jobs)
+    toc = time.time()
+    exe_time = round(toc - tic, 3)
+
+    dict_G2["Algorithm"].append("Parallel standard")
+    dict_G2["Time (s)"].append(exe_time)
+    dict_G2["Diameter"].append(diam)
+    t = f'Parallel standard algo\ntime: {exe_time}s, diameter: {diam}'
+    print(t)
+
+    ################################### OPTIMIZED ###################################
+    tic = time.time()
+    diam = stream_diam(G2)
+    toc = time.time()
+    exe_time = round(toc - tic, 3)
+
+    dict_G2["Algorithm"].append("Optimized")
+    dict_G2["Time (s)"].append(exe_time)
+    dict_G2["Diameter"].append(diam)
+    t = f'Optimized algo\ntime: {exe_time}s, diameter: {diam}'
+    print(t)
+
+    ################################### NETWORKX ###################################
+    ### Solo per connessi
+
+    df2 = pd.DataFrame(dict_G2, columns=['Algorithm', 'Time (s)', 'Diameter'])
+    df2.to_csv("diameter_Cit-HepTh.csv", index=False)"""
