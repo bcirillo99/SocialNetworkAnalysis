@@ -39,7 +39,7 @@ def input_data():
     n_nodes = G.number_of_nodes()
     k = math.floor(random.uniform(0.001*n_nodes, 0.05*n_nodes))
     k = 20
-    T = 20000 # tra 20000 e 200000
+    T = 80000 # tra 20000 e 200000
 
     arms_set = [v for v in G.nodes()]
     """
@@ -129,9 +129,9 @@ G, k, T, val, p, arms_set, auctions = input_data()
 # Page Rank 
 
 
-cen = pageRank(G)
+"""cen = pageRank(G)
 with open('pageRank_1.pickle', 'wb') as handle:
-    pickle.dump(cen, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    pickle.dump(cen, handle, protocol=pickle.HIGHEST_PROTOCOL)"""
 
 with open('pageRank_1.pickle', 'rb') as handle:
     cen = pickle.load(handle)
@@ -143,9 +143,9 @@ gaussian_dist_pagerank = initialize_arms_prior(cen,arms_set_page_rank) # Mean an
 # Vote Rank
 
 
-cen = voterank(G)
+"""cen = voterank(G)
 with open('voterank_1.pickle', 'wb') as handle:
-    pickle.dump(cen, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    pickle.dump(cen, handle, protocol=pickle.HIGHEST_PROTOCOL)"""
 
 with open('voterank_1.pickle', 'rb') as handle:
     cen = pickle.load(handle)
@@ -155,9 +155,9 @@ gaussian_dist_vote_rank = initialize_arms_prior(cen,arms_set_vote_rank) # Mean a
 
 # Degree
 
-cen = degree(G)
+"""cen = degree(G)
 with open('degree_1.pickle', 'wb') as handle:
-    pickle.dump(cen, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    pickle.dump(cen, handle, protocol=pickle.HIGHEST_PROTOCOL)"""
 
 with open('degree_1.pickle', 'rb') as handle:
     cen = pickle.load(handle)
@@ -168,9 +168,9 @@ gaussian_dist_degree = initialize_arms_prior(cen,arms_set_degree) # Mean and var
 
 # shapley_degree
 
-cen = shapley_degree(G)
+"""cen = shapley_degree(G)
 with open('shapley_degree_1.pickle', 'wb') as handle:
-    pickle.dump(cen, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    pickle.dump(cen, handle, protocol=pickle.HIGHEST_PROTOCOL)"""
 
 with open('shapley_degree_1.pickle', 'rb') as handle:
     cen = pickle.load(handle)
@@ -181,9 +181,9 @@ gaussian_dist_shapley_degree = initialize_arms_prior(cen,arms_set_shapley_degree
 
 # shapley_threshold
 
-cen = shapley_threshold(G)
+"""cen = shapley_threshold(G)
 with open('shapley_threshold_1.pickle', 'wb') as handle:
-    pickle.dump(cen, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    pickle.dump(cen, handle, protocol=pickle.HIGHEST_PROTOCOL)"""
 
 with open('shapley_threshold_1.pickle', 'rb') as handle:
     cen = pickle.load(handle)
@@ -195,9 +195,9 @@ gaussian_dist_shapley_threshold = initialize_arms_prior(cen,arms_set_shapley_thr
 # shapley_closeness
 
 
-cen = shapley_closeness(G,positive_decr_fun)
+"""cen = shapley_closeness(G,positive_decr_fun)
 with open('shapley_closeness_1.pickle', 'wb') as handle:
-    pickle.dump(cen, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    pickle.dump(cen, handle, protocol=pickle.HIGHEST_PROTOCOL)"""
 
 with open('shapley_closeness_1.pickle', 'rb') as handle:
     cen = pickle.load(handle)
@@ -216,7 +216,7 @@ gaussian_dist_shapley_closeness = initialize_arms_prior(cen,arms_set_shapley_clo
 
 
 listk = [1] # Range of k values
-list_auction = ["MUDAR","MUDAN"] # Different Auctions
+list_auction = ["MUDAR"] # Different Auctions
 dict_armset = {"normal": arms_set, "pagerank": arms_set_page_rank, "degree": arms_set_degree, "voterank": arms_set_vote_rank, "shapley_degree": arms_set_shapley_degree, "shapley_threshold": arms_set_shapley_threshold, "shapley_closeness": arms_set_shapley_closeness}
 dict_distributions = {"pagerank": gaussian_dist_pagerank, "degree": gaussian_dist_degree, "voterank": gaussian_dist_vote_rank, "shapley_degree": gaussian_dist_shapley_degree, "shapley_threshold": gaussian_dist_shapley_threshold, "shapley_closeness": gaussian_dist_shapley_closeness}
 dict_results =  {'Bandit':[],'Auction':[], 'Time (s)':[], 'T':[], 'k': [], "Revenue":[]}

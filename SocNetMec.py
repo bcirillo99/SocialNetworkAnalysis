@@ -103,7 +103,7 @@ class SocNetMec_UCB:
         print("bids:")
         print(bids)"""
         if len(seller_net)>0:
-            G1 = nx.DiGraph()
+            """G1 = nx.DiGraph()
 
             # costruzione del grafo
             for bidder in seller_net:
@@ -112,13 +112,13 @@ class SocNetMec_UCB:
             for key in reports.keys():
                 for value in reports[key]:
                     G1.add_edge(key, value)
-            n_nodes = G1.number_of_nodes()-1
+            n_nodes = G1.number_of_nodes()-1"""
             allocation, payments = auction[2](self.k, seller_net, reports, bids)
             reward = sum(payments.values())
         else:
-            n_nodes = 0
+            #n_nodes = 0
             reward = 0
-        self.__n_nodes.append(n_nodes)
+        #self.__n_nodes.append(n_nodes)
         """print("payments:")
         print(payments)
         print("allocation:")
@@ -272,7 +272,8 @@ class SocNetMec_TH:
         mu, sigma = self.__gaussian_dist[a_t]
 
         n = self.__num[a_t]
-        mu = (mu * (n-1) + reward) / n
+        #mu = (mu * (n-1) + reward) / n
+        mu = self.__avgrew[a_t]
         sigma = (sigma * (n - 2) + (reward - mu) ** 2) / (n - 1) if n > 1 else 1
         self.__gaussian_dist[a_t] =  (mu, sigma)
         return reward
@@ -676,7 +677,8 @@ class SocNetMec_Bayesian_UCB:
         mu, sigma = self.__gaussian_dist[a_t]
 
         n = self.__num[a_t]
-        mu = (mu * (n-1) + reward) / n
+        #mu = (mu * (n-1) + reward) / n
+        mu = self.__avgrew[a_t]
         sigma = (sigma * (n - 2) + (reward - mu) ** 2) / (n - 1) if n > 1 else 1
         self.__gaussian_dist[a_t] =  (mu, sigma)
 
