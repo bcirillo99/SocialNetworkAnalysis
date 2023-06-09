@@ -3,10 +3,10 @@ import pandas as pd
 
 
 
-df_mudan = pd.read_csv("final_results/80000/MUDAN_1.csv")
-df_mudar = pd.read_csv("final_results/80000/MUDAR_1.csv")
-#df_vcg = pd.read_csv("final_results/80000/VCG_1.csv")
-df_gidm = pd.read_csv("final_results/80000/GIDM_1.csv")
+df_mudan = pd.read_csv("final_results_prior/20000/MUDAN_1.csv")
+df_mudar = pd.read_csv("final_results_prior/20000/MUDAR_1.csv")
+#df_vcg = pd.read_csv("final_results/20000/VCG_1.csv")
+df_gidm = pd.read_csv("final_results_prior/20000/GIDM_1.csv")
 
 """df_mudan = df.loc[df['Auction'] == "MUDAN"].reset_index(drop=True)
 df_mudar = df.loc[df['Auction'] == "MUDAR"].reset_index(drop=True)
@@ -28,7 +28,7 @@ for k in listk:
 
 final_results = pd.concat(results).reset_index(drop=True)
 print(final_results)
-path = "final_results/80000/results_1/"
+path = "final_results_prior/20000/results_1/"
         
 if not os.path.exists(path):
     os.makedirs(path)

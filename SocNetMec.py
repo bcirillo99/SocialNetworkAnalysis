@@ -272,8 +272,7 @@ class SocNetMec_TH:
         mu, sigma = self.__gaussian_dist[a_t]
 
         n = self.__num[a_t]
-        #mu = (mu * (n-1) + reward) / n
-        mu = self.__avgrew[a_t]
+        mu = (mu * (n-1) + reward) / n
         sigma = (sigma * (n - 2) + (reward - mu) ** 2) / (n - 1) if n > 1 else 1
         self.__gaussian_dist[a_t] =  (mu, sigma)
         return reward
@@ -677,8 +676,7 @@ class SocNetMec_Bayesian_UCB:
         mu, sigma = self.__gaussian_dist[a_t]
 
         n = self.__num[a_t]
-        #mu = (mu * (n-1) + reward) / n
-        mu = self.__avgrew[a_t]
+        mu = (mu * (n-1) + reward) / n
         sigma = (sigma * (n - 2) + (reward - mu) ** 2) / (n - 1) if n > 1 else 1
         self.__gaussian_dist[a_t] =  (mu, sigma)
 

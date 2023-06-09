@@ -1,0 +1,7 @@
+Bandit,Auction,Time (s),T,k,Revenue,armset
+UCB,GIDM,33.903,20000,1,258961.0,normal
+Bayesian_UCB,GIDM,36.068,20000,1,259678.0,normal
+TH,GIDM,198.859,20000,1,283967.0,normal
+UCB,GIDM,36.292,20000,2,353579.0,normal
+Bayesian_UCB,GIDM,35.435,20000,2,362925.0,normal
+TH,GIDM,209.683,20000,2,441298.0,normal

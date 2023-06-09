@@ -124,7 +124,7 @@ def normalize_centrality(centrality):
     normalized = {a:(centrality[a] - mean) / std for a in centrality.keys()}
     return normalized
 
-G, k, T, val, p, arms_set, auctions = input_data()
+G, k, T, val, p, arms_set, auctions = input_data(path_net="data/GenWS2DG_2.txt")
 
 ####################################################################
 
@@ -140,10 +140,10 @@ gaussian_dist_normal = {a:(0,1) for a in arms_set}
 
 """
 cen = pageRank(G)
-with open('pageRank.pickle', 'wb') as handle:
+with open('pageRank_2.pickle', 'wb') as handle:
     pickle.dump(cen, handle, protocol=pickle.HIGHEST_PROTOCOL)"""
 
-with open('pageRank.pickle', 'rb') as handle:
+with open('pageRank_2.pickle', 'rb') as handle:
     cen = pickle.load(handle)
 
 arms_set_page_rank = list(top(G,cen,200).keys()) # The 200 nodes with the highest centrality measure
@@ -154,10 +154,10 @@ gaussian_dist_pagerank = initialize_arms_prior(cen,arms_set_page_rank) # Mean an
 
 """
 cen = voterank(G)
-with open('voterank.pickle', 'wb') as handle:
+with open('voterank_2.pickle', 'wb') as handle:
     pickle.dump(cen, handle, protocol=pickle.HIGHEST_PROTOCOL)"""
 
-with open('voterank.pickle', 'rb') as handle:
+with open('voterank_2.pickle', 'rb') as handle:
     cen = pickle.load(handle)
 
 arms_set_vote_rank = list(top(G,cen,200).keys()) # The 200 nodes with the highest centrality measure
@@ -166,10 +166,10 @@ gaussian_dist_vote_rank = initialize_arms_prior(cen,arms_set_vote_rank) # Mean a
 # Degree
 """
 cen = degree(G)
-with open('degree.pickle', 'wb') as handle:
+with open('degree_2.pickle', 'wb') as handle:
     pickle.dump(cen, handle, protocol=pickle.HIGHEST_PROTOCOL)"""
 
-with open('degree.pickle', 'rb') as handle:
+with open('degree_2.pickle', 'rb') as handle:
     cen = pickle.load(handle)
 
 arms_set_degree = list(top(G,cen,200).keys()) # The 200 nodes with the highest centrality measure
@@ -179,10 +179,10 @@ gaussian_dist_degree = initialize_arms_prior(cen,arms_set_degree) # Mean and var
 # shapley_degree
 """
 cen = shapley_degree(G)
-with open('shapley_degree.pickle', 'wb') as handle:
+with open('shapley_degree_2.pickle', 'wb') as handle:
     pickle.dump(cen, handle, protocol=pickle.HIGHEST_PROTOCOL)"""
 
-with open('shapley_degree.pickle', 'rb') as handle:
+with open('shapley_degree_2.pickle', 'rb') as handle:
     cen = pickle.load(handle)
 
 arms_set_shapley_degree = list(top(G,cen,200).keys()) # The 200 nodes with the highest centrality measure
@@ -192,10 +192,10 @@ gaussian_dist_shapley_degree = initialize_arms_prior(cen,arms_set_shapley_degree
 # shapley_threshold
 """
 cen = shapley_threshold(G)
-with open('shapley_threshold.pickle', 'wb') as handle:
+with open('shapley_threshold_2.pickle', 'wb') as handle:
     pickle.dump(cen, handle, protocol=pickle.HIGHEST_PROTOCOL)"""
 
-with open('shapley_threshold.pickle', 'rb') as handle:
+with open('shapley_threshold_2.pickle', 'rb') as handle:
     cen = pickle.load(handle)
 
 arms_set_shapley_threshold = list(top(G,cen,200).keys()) # The 200 nodes with the highest centrality measure
@@ -206,10 +206,10 @@ gaussian_dist_shapley_threshold = initialize_arms_prior(cen,arms_set_shapley_thr
 
 """
 cen = shapley_closeness(G,positive_decr_fun)
-with open('shapley_closeness.pickle', 'wb') as handle:
+with open('shapley_closeness_2.pickle', 'wb') as handle:
     pickle.dump(cen, handle, protocol=pickle.HIGHEST_PROTOCOL)"""
 
-with open('shapley_closeness.pickle', 'rb') as handle:
+with open('shapley_closeness_2.pickle', 'rb') as handle:
     cen = pickle.load(handle)
 
 arms_set_shapley_closeness = list(top(G,cen,200).keys()) # The 200 nodes with the highest centrality measure
@@ -388,7 +388,7 @@ for auction in list_auction:
         
             if not os.path.exists(path):
                 os.makedirs(path)
-            df1.to_csv(path+"/"+auction+".csv", index=False)
+            df1.to_csv(path+"/"+auction+"_2.csv", index=False)
 
 
 print("\n\n\n\n\n\n\n\n\nEND\n\n\n\n\n\n\n\n\n")

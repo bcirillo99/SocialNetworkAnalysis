@@ -1,0 +1,2 @@
+python3 final_test_armset.py
+python3 final_test_armset_2.py
