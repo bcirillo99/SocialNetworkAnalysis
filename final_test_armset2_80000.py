@@ -227,8 +227,8 @@ gaussian_dist_shapley_closeness = initialize_arms_prior(cen,arms_set_shapley_clo
 
 listk = [1,2,3,4,5] # Range of k values
 list_auction = ["MUDAR"] # Different Auctions
-dict_armset = {"normal":arms_set,"pagerank": arms_set_page_rank, "degree": arms_set_degree, "voterank": arms_set_vote_rank, "shapley_degree": arms_set_shapley_degree, "shapley_threshold": arms_set_shapley_threshold, "shapley_closeness": arms_set_shapley_closeness}
-dict_distributions = {"normal":gaussian_dist_normal,"pagerank": gaussian_dist_pagerank, "degree": gaussian_dist_degree, "voterank": gaussian_dist_vote_rank, "shapley_degree": gaussian_dist_shapley_degree, "shapley_threshold": gaussian_dist_shapley_threshold, "shapley_closeness": gaussian_dist_shapley_closeness}
+dict_armset = {"pagerank": arms_set_page_rank, "degree": arms_set_degree, "voterank": arms_set_vote_rank}
+dict_distributions = {"pagerank": gaussian_dist_pagerank, "degree": gaussian_dist_degree, "voterank": gaussian_dist_vote_rank}
 dict_results =  {'Bandit':[],'Auction':[], 'Time (s)':[], 'T':[], 'k': [], "Revenue":[]}
 
 ########################## Normal armset ###########################
@@ -326,65 +326,8 @@ for auction in list_auction:
                 print("total revenue: ", ucb_revenue)
                 print()
 
-            ##################       THOMPSON SAMPLING           ##################
-
-            snm_th=SocNetMec_TH(G=G, T=T, k=k, auctions=auctions, arms_set=arms_set, auction=auction)
-            th_revenue = 0
-            opt_th_reward = 0
-            regrets_th = {}
-
-            print("THOMPSON SAMPLING: \n")
-            tic = time.time()
-            for step in tqdm(range(T)):
-                th_revenue += snm_th.run(step, prob, valf)
-                opt_th_reward += snm_th.get_best_arm_approx()
-                regrets_th[step] = opt_th_reward - th_revenue
-            toc = time.time()
-            exe_time_th = round(toc - tic, 3)
-
-            dict_results["Bandit"].append("TH")
-            dict_results["Auction"].append(auction)
-            dict_results["Time (s)"].append(exe_time_th)
-            dict_results["T"].append(T)
-            dict_results["k"].append(k)
-            dict_results["Revenue"].append(th_revenue)
-            dict_results["armset"].append(key)
-
-            print("total revenue: ", th_revenue)
-            print()
-
-
-
-            ##################       THOMPSON SAMPLING PRIOR          ##################
-            if key != "normal":
-
-                snm_th=SocNetMec_TH(G=G, T=T, k=k, auctions=auctions, arms_set=arms_set, auction=auction, gaussian_dist=prior)
-                th_revenue = 0
-                opt_th_reward = 0
-                regrets_th = {}
-
-                print("THOMPSON SAMPLING Prior: \n")
-                tic = time.time()
-                for step in tqdm(range(T)):
-                    th_revenue += snm_th.run(step, prob, valf)
-                    opt_th_reward += snm_th.get_best_arm_approx()
-                    regrets_th[step] = opt_th_reward - th_revenue
-                toc = time.time()
-                exe_time_th = round(toc - tic, 3)
-
-                dict_results["Bandit"].append("TH_prior")
-                dict_results["Auction"].append(auction)
-                dict_results["Time (s)"].append(exe_time_th)
-                dict_results["T"].append(T)
-                dict_results["k"].append(k)
-                dict_results["Revenue"].append(th_revenue)
-                dict_results["armset"].append(key)
-
-                print("total revenue: ", th_revenue)
-                print()
-
             df1 = pd.DataFrame(dict_results, columns=['Bandit','Auction', 'Time (s)', 'T', 'k', 'Revenue','armset'])
-            path = "final_results_prior/"+str(T)
+            path = "final_results_prior2/"+str(T)
         
             if not os.path.exists(path):
                 os.makedirs(path)

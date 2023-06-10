@@ -124,7 +124,7 @@ def normalize_centrality(centrality):
     normalized = {a:(centrality[a] - mean) / std for a in centrality.keys()}
     return normalized
 
-G, k, T, val, p, arms_set, auctions = input_data()
+G, k, T, val, p, arms_set, auctions = input_data(path_net="data/GenWS2DG_2.txt")
 
 ####################################################################
 
@@ -140,10 +140,10 @@ gaussian_dist_normal = {a:(0,1) for a in arms_set}
 
 """
 cen = pageRank(G)
-with open('pageRank.pickle', 'wb') as handle:
+with open('pageRank_2.pickle', 'wb') as handle:
     pickle.dump(cen, handle, protocol=pickle.HIGHEST_PROTOCOL)"""
 
-with open('pageRank.pickle', 'rb') as handle:
+with open('pageRank_2.pickle', 'rb') as handle:
     cen = pickle.load(handle)
 
 arms_set_page_rank = list(top(G,cen,200).keys()) # The 200 nodes with the highest centrality measure
@@ -154,10 +154,10 @@ gaussian_dist_pagerank = initialize_arms_prior(cen,arms_set_page_rank) # Mean an
 
 """
 cen = voterank(G)
-with open('voterank.pickle', 'wb') as handle:
+with open('voterank_2.pickle', 'wb') as handle:
     pickle.dump(cen, handle, protocol=pickle.HIGHEST_PROTOCOL)"""
 
-with open('voterank.pickle', 'rb') as handle:
+with open('voterank_2.pickle', 'rb') as handle:
     cen = pickle.load(handle)
 
 arms_set_vote_rank = list(top(G,cen,200).keys()) # The 200 nodes with the highest centrality measure
@@ -166,10 +166,10 @@ gaussian_dist_vote_rank = initialize_arms_prior(cen,arms_set_vote_rank) # Mean a
 # Degree
 """
 cen = degree(G)
-with open('degree.pickle', 'wb') as handle:
+with open('degree_2.pickle', 'wb') as handle:
     pickle.dump(cen, handle, protocol=pickle.HIGHEST_PROTOCOL)"""
 
-with open('degree.pickle', 'rb') as handle:
+with open('degree_2.pickle', 'rb') as handle:
     cen = pickle.load(handle)
 
 arms_set_degree = list(top(G,cen,200).keys()) # The 200 nodes with the highest centrality measure
@@ -179,10 +179,10 @@ gaussian_dist_degree = initialize_arms_prior(cen,arms_set_degree) # Mean and var
 # shapley_degree
 """
 cen = shapley_degree(G)
-with open('shapley_degree.pickle', 'wb') as handle:
+with open('shapley_degree_2.pickle', 'wb') as handle:
     pickle.dump(cen, handle, protocol=pickle.HIGHEST_PROTOCOL)"""
 
-with open('shapley_degree.pickle', 'rb') as handle:
+with open('shapley_degree_2.pickle', 'rb') as handle:
     cen = pickle.load(handle)
 
 arms_set_shapley_degree = list(top(G,cen,200).keys()) # The 200 nodes with the highest centrality measure
@@ -192,10 +192,10 @@ gaussian_dist_shapley_degree = initialize_arms_prior(cen,arms_set_shapley_degree
 # shapley_threshold
 """
 cen = shapley_threshold(G)
-with open('shapley_threshold.pickle', 'wb') as handle:
+with open('shapley_threshold_2.pickle', 'wb') as handle:
     pickle.dump(cen, handle, protocol=pickle.HIGHEST_PROTOCOL)"""
 
-with open('shapley_threshold.pickle', 'rb') as handle:
+with open('shapley_threshold_2.pickle', 'rb') as handle:
     cen = pickle.load(handle)
 
 arms_set_shapley_threshold = list(top(G,cen,200).keys()) # The 200 nodes with the highest centrality measure
@@ -206,10 +206,10 @@ gaussian_dist_shapley_threshold = initialize_arms_prior(cen,arms_set_shapley_thr
 
 """
 cen = shapley_closeness(G,positive_decr_fun)
-with open('shapley_closeness.pickle', 'wb') as handle:
+with open('shapley_closeness_2.pickle', 'wb') as handle:
     pickle.dump(cen, handle, protocol=pickle.HIGHEST_PROTOCOL)"""
 
-with open('shapley_closeness.pickle', 'rb') as handle:
+with open('shapley_closeness_2.pickle', 'rb') as handle:
     cen = pickle.load(handle)
 
 arms_set_shapley_closeness = list(top(G,cen,200).keys()) # The 200 nodes with the highest centrality measure
@@ -224,11 +224,10 @@ gaussian_dist_shapley_closeness = initialize_arms_prior(cen,arms_set_shapley_clo
 
 ####################################################################
 
-
 listk = [1,2,3,4,5] # Range of k values
 list_auction = ["MUDAR"] # Different Auctions
-dict_armset = {"normal":arms_set,"pagerank": arms_set_page_rank, "degree": arms_set_degree, "voterank": arms_set_vote_rank, "shapley_degree": arms_set_shapley_degree, "shapley_threshold": arms_set_shapley_threshold, "shapley_closeness": arms_set_shapley_closeness}
-dict_distributions = {"normal":gaussian_dist_normal,"pagerank": gaussian_dist_pagerank, "degree": gaussian_dist_degree, "voterank": gaussian_dist_vote_rank, "shapley_degree": gaussian_dist_shapley_degree, "shapley_threshold": gaussian_dist_shapley_threshold, "shapley_closeness": gaussian_dist_shapley_closeness}
+dict_armset = {"pagerank": arms_set_page_rank, "degree": arms_set_degree, "voterank": arms_set_vote_rank}
+dict_distributions = {"pagerank": gaussian_dist_pagerank, "degree": gaussian_dist_degree, "voterank": gaussian_dist_vote_rank}
 dict_results =  {'Bandit':[],'Auction':[], 'Time (s)':[], 'T':[], 'k': [], "Revenue":[]}
 
 ########################## Normal armset ###########################
@@ -326,69 +325,12 @@ for auction in list_auction:
                 print("total revenue: ", ucb_revenue)
                 print()
 
-            ##################       THOMPSON SAMPLING           ##################
-
-            snm_th=SocNetMec_TH(G=G, T=T, k=k, auctions=auctions, arms_set=arms_set, auction=auction)
-            th_revenue = 0
-            opt_th_reward = 0
-            regrets_th = {}
-
-            print("THOMPSON SAMPLING: \n")
-            tic = time.time()
-            for step in tqdm(range(T)):
-                th_revenue += snm_th.run(step, prob, valf)
-                opt_th_reward += snm_th.get_best_arm_approx()
-                regrets_th[step] = opt_th_reward - th_revenue
-            toc = time.time()
-            exe_time_th = round(toc - tic, 3)
-
-            dict_results["Bandit"].append("TH")
-            dict_results["Auction"].append(auction)
-            dict_results["Time (s)"].append(exe_time_th)
-            dict_results["T"].append(T)
-            dict_results["k"].append(k)
-            dict_results["Revenue"].append(th_revenue)
-            dict_results["armset"].append(key)
-
-            print("total revenue: ", th_revenue)
-            print()
-
-
-
-            ##################       THOMPSON SAMPLING PRIOR          ##################
-            if key != "normal":
-
-                snm_th=SocNetMec_TH(G=G, T=T, k=k, auctions=auctions, arms_set=arms_set, auction=auction, gaussian_dist=prior)
-                th_revenue = 0
-                opt_th_reward = 0
-                regrets_th = {}
-
-                print("THOMPSON SAMPLING Prior: \n")
-                tic = time.time()
-                for step in tqdm(range(T)):
-                    th_revenue += snm_th.run(step, prob, valf)
-                    opt_th_reward += snm_th.get_best_arm_approx()
-                    regrets_th[step] = opt_th_reward - th_revenue
-                toc = time.time()
-                exe_time_th = round(toc - tic, 3)
-
-                dict_results["Bandit"].append("TH_prior")
-                dict_results["Auction"].append(auction)
-                dict_results["Time (s)"].append(exe_time_th)
-                dict_results["T"].append(T)
-                dict_results["k"].append(k)
-                dict_results["Revenue"].append(th_revenue)
-                dict_results["armset"].append(key)
-
-                print("total revenue: ", th_revenue)
-                print()
-
             df1 = pd.DataFrame(dict_results, columns=['Bandit','Auction', 'Time (s)', 'T', 'k', 'Revenue','armset'])
-            path = "final_results_prior/"+str(T)
+            path = "final_results_prior2/"+str(T)
         
             if not os.path.exists(path):
                 os.makedirs(path)
-            df1.to_csv(path+"/"+auction+".csv", index=False)
+            df1.to_csv(path+"/"+auction+"_2.csv", index=False)
 
 
 print("\n\n\n\n\n\n\n\n\nEND\n\n\n\n\n\n\n\n\n")
