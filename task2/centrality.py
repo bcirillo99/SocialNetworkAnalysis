@@ -103,26 +103,8 @@ if __name__ == '__main__':
     k = args.k
     file_name = args.file_name
 
-    #G1 = create_graph_from_csv('../data/musae_facebook_edges.csv')
-    #G2 = create_graph_from_txt('../data/Cit-HepTh.txt', sep='\t', directed=True)
-    
-    G1 = nx.Graph()
-    G1.add_edge('A', 'B')
-    G1.add_edge('A','D')
-    G1.add_edge('B', 'E')
-    G1.add_edge('B', 'C')
-    G1.add_edge('C', 'E')
-    G1.add_edge('C', 'D')
-    G1.add_edge('C', 'F')
-
-    G2 = nx.DiGraph()
-    G2.add_edge('A', 'B')
-    G2.add_edge('A','D')
-    G2.add_edge('B', 'E')
-    G2.add_edge('B', 'C')
-    G2.add_edge('C', 'E')
-    G2.add_edge('C', 'D')
-    G2.add_edge('C', 'F')
+    G1 = create_graph_from_csv('../data/musae_facebook_edges.csv')
+    G2 = create_graph_from_txt('../data/Cit-HepTh.txt', sep='\t', directed=True)
 
     with open(file_name,"w") as fp:
         ##################################################################################

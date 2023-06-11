@@ -1,48 +1,104 @@
+import sys
+
+import pandas as pd
+
+from idm import GIDM
+from multi_diffusion_auction import auction_mudan
+
+sys.path.insert(0, '../')
+from utils import create_auction,auction_results
 import networkx as nx
 import random
 from collections import deque
-from vcg import *
+from vcg import auction
 import time
+from lesson5 import GenWS2DG
+from multi_diffusion_auction import auction_mudar
 
+from argparse import ArgumentParser
 
-def create_auction(k, num_nodes):
-    G = nx.random_regular_graph(k, num_nodes)
-    # scelta casuale del seller
-    seller = random.choice(list(G.nodes()))
-    # costruzione di seller_net
-    seller_net = {bidder for bidder in G[seller]}
-
-    # costruzione dizionario reports
-    reports = {}
-    level = deque([seller])
-    visited = [seller]
-
-    while len(level) > 0:
-
-        n = level.popleft()
-        for c in G[n]:
-            if c not in visited:
-                level.append(c)
-                visited.append(c)
-                if n not in reports:
-                    reports[n] = [c]
-                else:
-                    reports[n].append(c)
-
-    del reports[seller]
-    # costruzione di bids
-    bids = {}
-    for n in G.nodes():
-        bid = random.randrange(1, 100, 1)
-        bids[n] = bid
-
-    return seller_net, reports, bids
 
 
 if __name__ == '__main__':
-    seller_net, reports, bids = create_auction(2, 20)
-    tic = time.time()
-    print(auction(2, seller_net, reports, bids))
-    toc = time.time()
-    print(f'VCG time: {toc - tic}s')
+    # Test e Analisi delle tempistiche
 
+    parser = ArgumentParser()
+    parser.add_argument('--n', help='numero di nodi', type=int, default=50)
+    parser.add_argument('--r', help='raggio per modello Watts-Strogatz', type=float, default=2.71)
+    parser.add_argument('--kw', help='numero di weak ties per modello Watts-Strogatz', type=int, default=1)
+    parser.add_argument('--q', help='parametro q per modello Watts-Strogatz', type=float, default=4.)
+    parser.add_argument('--k', help='numero di elementi da vendere', type=int, default=5)
+    parser.add_argument('--file_name', help='file dove salvare risultati', type=str, default="results.csv")
+    
+    args = parser.parse_args()
+
+    n = args.n
+    kw = args.kw
+    r = args.r
+    q = args.q
+    k = args.k
+
+    #df = pd.DataFrame()
+    dict_G1 = {'Auction':[], 'Time (s)':[], 'Sw':[], 'Rw': []}
+    seller_net, reports, bids = create_auction(n,r,kw,q)
+    
+    
+    ################################### MUDAR ###################################
+    print("MUDAR")
+    tic = time.time()
+    allocations, payments = auction_mudar(k, seller_net, reports, bids)
+    toc = time.time()
+    exe_time = round(toc - tic, 3)
+
+    sw,rw = auction_results(allocations,bids,payments)
+
+    dict_G1["Auction"].append("MUDAR")
+    dict_G1["Time (s)"].append(exe_time)
+    dict_G1["Sw"].append(sw)
+    dict_G1["Rw"].append(rw)
+
+    ################################### MUDAN ###################################
+    print("MUDAN")
+    tic = time.time()
+    allocations, payments = auction_mudan(k, seller_net, reports, bids)
+    toc = time.time()
+    exe_time = round(toc - tic, 3)
+
+    sw,rw = auction_results(allocations,bids,payments)
+
+    dict_G1["Auction"].append("MUDAN")
+    dict_G1["Time (s)"].append(exe_time)
+    dict_G1["Sw"].append(sw)
+    dict_G1["Rw"].append(rw)
+
+    ################################### VCG ###################################
+    print("VCG")
+    tic = time.time()
+    allocations, payments = auction(k, seller_net, reports, bids)
+    toc = time.time()
+    exe_time = round(toc - tic, 3)
+
+    sw,rw = auction_results(allocations,bids,payments)
+
+    dict_G1["Auction"].append("VCG")
+    dict_G1["Time (s)"].append(exe_time)
+    dict_G1["Sw"].append(sw)
+    dict_G1["Rw"].append(rw)
+
+    ################################### GIDM ###################################
+    print("GIDM")
+    tic = time.time()
+    allocations, payments = GIDM(k, seller_net, reports, bids)
+    toc = time.time()
+    exe_time = round(toc - tic, 3)
+
+    sw,rw = auction_results(allocations,bids,payments)
+
+    dict_G1["Auction"].append("GIDM")
+    dict_G1["Time (s)"].append(exe_time)
+    dict_G1["Sw"].append(sw)
+    dict_G1["Rw"].append(rw)
+
+    df1 = pd.DataFrame(dict_G1)
+    print(df1)
+    df1.to_csv(args.file_name, index=False)

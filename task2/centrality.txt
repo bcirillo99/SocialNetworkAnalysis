@@ -1,77 +1,7 @@
 Facebook
 
-directed: False, node: 6, edges: 7
+directed: False, node: 22470, edges: 171002
 
 Degree centrality
-time: 7.867813110351562e-06s, top 3 nodes: {'C': 0.8, 'B': 0.6, 'A': 0.4}
-
-closeness centrality
-time: 3.1948089599609375e-05s, top 3 nodes: {'F': 10, 'A': 9, 'D': 8}
-
-betweenness centrality
-time: 0.0001068115234375s, top 3 nodes: {'C': 17.0, 'B': 9.5, 'D': 7.5}
-
-PageRank centrality
-time: 0.0007059574127197266s, top 3 nodes: {'C': 0.27699348361961423, 'B': 0.2060488118384433, 'D': 0.14559612675683437}
-
-Linear PageRank centrality
-time: 0.0002129077911376953s, top 3 nodes: {'C': 0.2769924572586087, 'B': 0.2060494640532514, 'D': 0.1455968056697243}
-
-VoteRank centrality
-time: 4.291534423828125e-05s, top 3 nodes: {'C': 6, 'B': 5, 'A': 4}
-
-shapley degree centrality
-time: 1.1682510375976562e-05s, top 3 nodes: {'C': 1.6166666666666667, 'B': 1.1166666666666665, 'A': 0.9166666666666665}
-
-shapley threshold centrality
-time: 1.5974044799804688e-05s, top 3 nodes: {'C': 1.4625, 'B': 1.0777777777777777, 'F': 1.0}
-
-shapley closeness centrality
-time: 3.409385681152344e-05s, top 3 nodes: {'C': 1.2916666666666665, 'D': 1.125, 'F': 1.125}
-
-
-Citation Network
-
-directed: True, node: 6, edges: 7
-
-Degree centrality
-time: 5.7220458984375e-06s, top 3 nodes: {'C': 0.8, 'B': 0.6, 'A': 0.4}
-
-closeness centrality
-time: 1.4066696166992188e-05s, top 3 nodes: {'A': 9, 'B': 6, 'C': 3}
-
-betweenness centrality
-time: 5.2928924560546875e-05s, top 3 nodes: {'C': 5.0, 'B': 4.0, 'D': 3}
-
-PageRank centrality
-time: 0.00011491775512695312s, top 3 nodes: {'E': 0.05151380208333334, 'D': 0.046998177083333335, 'C': 0.040140625000000006}
-
-Linear PageRank centrality
-time: 0.0001690387725830078s, top 3 nodes: {'E': 0.05151380208333334, 'D': 0.04699817708333334, 'C': 0.040140625000000006}
-
-VoteRank centrality
-time: 0.00014400482177734375s, top 3 nodes: {'C': 6, 'A': 5, 'B': 4}
-
-HITS-both centrality
-time: 0.004855155944824219s, top 3 nodes: {'C': 0.30000000000000004, 'B': 0.17500000000000004, 'D': 0.15000000000000002}
-HITS-authority centrality
-time: 0.004855155944824219s, top 3 nodes: {'D': 0.30000000000000004, 'E': 0.30000000000000004, 'F': 0.2}
-HITS-hubiness centrality
-time: 0.004855155944824219s, top 3 nodes: {'C': 0.5000000000000001, 'A': 0.25000000000000006, 'B': 0.25000000000000006}
-
-linear HITS-both centrality
-time: 0.013011932373046875s, top 3 nodes: {'C': 0.3, 'B': 0.175, 'D': 0.15}
-linear HITS-authority centrality
-time: 0.013011932373046875s, top 3 nodes: {'D': 0.3, 'E': 0.3, 'F': 0.19999999999999998}
-linear HITS-hubiness centrality
-time: 0.013011932373046875s, top 3 nodes: {'C': 0.5, 'A': 0.25, 'B': 0.25}
-
-shapley degree centrality
-time: 2.09808349609375e-05s, top 3 nodes: {'A': 1.8333333333333333, 'C': 1.6666666666666665, 'B': 1.3333333333333333}
-
-shapley threshold centrality
-time: 1.71661376953125e-05s, top 3 nodes: {'C': 1.875, 'B': 1.5555555555555556, 'A': 1.4166666666666667}
-
-shapley closeness centrality
-time: 2.3126602172851562e-05s, top 3 nodes: {'A': 1.0, 'B': 1.0, 'C': 1.0}
+time: 0.05332589149475098s, top 3 nodes: {'16895': 0.0315545863189283, '19743': 0.030174907650540744, '21729': 0.029329298144109662}
 

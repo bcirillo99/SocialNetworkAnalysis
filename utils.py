@@ -1,10 +1,54 @@
+from collections import deque
 import csv
+import random
 
 import networkx as nx
 from pathlib import Path
 from queue import PriorityQueue
 
+from lesson5 import GenWS2DG
 
+def auction_results(allocations: dict, bids: dict, payments: dict):
+    rw = sum(payments.values())
+    sw = 0.
+    for bidder, alloc in allocations.items():
+        if alloc:
+            sw += bids[bidder]
+    
+    return sw, rw
+
+def create_auction(num_nodes, r = 2.71,k = 1, q=4):
+    G = GenWS2DG(num_nodes,r,k,q)
+    # scelta casuale del seller
+    seller = random.choice(list(G.nodes()))
+    # costruzione di seller_net
+    seller_net = {bidder for bidder in G[seller]}
+
+    # costruzione dizionario reports
+    reports = {}
+    level = deque([seller])
+    visited = [seller]
+
+    while len(level) > 0:
+
+        n = level.popleft()
+        for c in G[n]:
+            if c not in visited:
+                level.append(c)
+                visited.append(c)
+                if n not in reports:
+                    reports[n] = [c]
+                else:
+                    reports[n].append(c)
+
+    del reports[seller]
+    # costruzione di bids
+    bids = {}
+    for n in G.nodes():
+        bid = random.randrange(1, 10000, 1)
+        bids[n] = bid
+
+    return seller_net, reports, bids
 
 def BFS(G,u):
     """

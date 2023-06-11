@@ -1,4 +1,5 @@
 import copy
+import random
 import networkx as nx
 import matplotlib.pyplot as plt
 import ast
@@ -138,28 +139,27 @@ def auction_mudar(k: int, seller_net: set, reports: dict, bids: dict):
     W = []
     level = [seller]
     A = []  # visited
-    A_W = []  # A/W
 
     # lista contenente i buyer esplorati esclusi i vincitori
 
     level = [bidder for bidder in G[seller]]
-    A_W = [bidder for bidder in G[seller]]
     A = [bidder for bidder in G[seller]]
     # inizializzazione di P
-    if len(A_W) <= k:
-        P = copy.deepcopy(A_W)
+    if len(A) <= k:
+        P = copy.deepcopy(A)
     else:
-        A_W.sort(reverse=True)
-        P = copy.deepcopy(A_W[:k])
+        A.sort(reverse=True)
+        P = copy.deepcopy(A[:k])
     W = set()
 
+
     while set(P)-W:
-        winning_bidder = choice_winner(G, P)
+            
+        winning_bidder = choice_winner(G, list(set(P)-W))
         
-        # aggiornamento dell'insieme A_W
-        A_W.remove(winning_bidder)
         # settaggio del prezzo
         A.sort(reverse=True)
+        #print(A)
         pw = 0
         if k < len(A):
             # a differenza di MUDAN nel calcolo del prezzo l'insieme utilizzato è A e non A_W
@@ -174,11 +174,10 @@ def auction_mudar(k: int, seller_net: set, reports: dict, bids: dict):
                 if nb not in A:
                     new_level.append(nb)
                     A.append(nb)
-                    A_W.append(nb)
         level = new_level
-        A_W.sort(reverse=True)
+        A.sort(reverse=True)
         # i potenziali vincitori sono i primi k + 1 buyer con la più alta valutazione
-        P = A_W[:k]
+        P = A[:k]
         # scelta del vincitore dall'insieme dei potenziali vincitori
 
     # calcolo delle ricompense
@@ -222,106 +221,78 @@ def auction_results(allocations: dict, bids: dict, payments: dict):
 
 
 if __name__ == '__main__':
-    print("SSSSSS")
-    """seller_net = {'1'}
-    reports ={'1': ['2', '3', '4', '5', '6'], '2': ['7'], '3': ['8'], '4': ['9'], '5': ['10', '11'], '6': ['12'], '10': ['13', '14', '15'], '12': ['16'], '14': ['17'], '17': ['18'], '18': ['19'], '19': ['20']}
-    bids = {'1': 21, '2': 71, '3': 10, '4': 34, '5': 62, '6': 7, '7': 32, '8': 12, '9': 52, '10': 6, '11': 96, '12': 91, '13': 86, '14': 74, '15': 81, '16': 43, '17': 82, '18': 69, '19': 18, '20': 56}
-    print("MUDAR")
-    allocations, payments = auction_mudar(19, seller_net, reports, bids)
-    print("\npayments:")
-    print(payments)
-    print("\nallocation:")
-    print(allocations)
-    print(sum(payments.values()))
-    print(auction_results(allocations, payments))
 
-    print("MUDAN")
-    allocations, payments = auction_mudan(19, seller_net, reports, bids)
-    print("\npayments:")
-    print(payments)
-    print("\nallocation:")
-    print(allocations)
-    print(sum(payments.values()))
-    print(auction_results(allocations, payments))"""
-
-    """seller_net = {'1'}
-    reports ={'1': ['2', '3', '4', '5', '6'], '2': ['7'], '3': ['8'], '4': ['9'], '5': ['10', '11'], '6': ['12'], '10': ['13', '14', '15'], '12': ['16'], '14': ['17'], '17': ['18'], '18': ['19'], '19': ['20']}
-    bids = {'1': 21, '2': 71, '3': 10, '4': 34, '5': 62, '6': 7, '7': 32, '8': 12, '9': 52, '10': 6, '11': 96, '12': 91, '13': 86, '14': 74, '15': 81, '16': 43, '17': 82, '18': 69, '19': 18, '20': 56}
-    print(bids)
-    print(sorted(list(bids.values()),reverse=True))
-    print("MUDAR")
-    allocations, payments = auction_mudar(18, seller_net, reports, bids)
-    print("\npayments:")
-    print(payments)
-    print("\nallocation:")
-    print(allocations)
-    print(sum(payments.values()))
-    print(auction_results(allocations, payments))
-
-
-    seller_net = {'6582'}
-    reports={'6582': ['11062'], '11062': ['893']}
-    bids = {'6582': 21, '893': 71, '11062': 10}
-    allocations, payments = auction_mudar(1, seller_net, reports, bids)
-    print("\npayments:")
-    print(payments)
-    print("\nallocation:")
-    print(allocations)
-    print(sum(payments.values()))
-    print(auction_results(allocations, payments))"""
-    """
-    with open("data.txt", "r") as f:
-        seller_net = ast.literal_eval(f.readline())
-        reports = ast.literal_eval(f.readline())
-        bids = ast.literal_eval(f.readline())
-        k = int(f.readline())
-
-    allocations, payments = auction_mudar(k, seller_net, reports, bids)
-
-    print(sum(payments.values()))
-    auction_results(allocations,bids, payments)
-
-    with open("data.txt", "r") as f:
-        seller_net = ast.literal_eval(f.readline())
-        reports = ast.literal_eval(f.readline())
-        bids = ast.literal_eval(f.readline())
-        k = int(f.readline())
-
-    allocations, payments = auction_mudan(k, seller_net, reports, bids)
-
-
-    print(sum(payments.values()))
-    auction_results(allocations,bids, payments)"""
-
-    """seller_net = {'1'}
-    reports ={'1': ['2', '3', '4', '5', '6'], '2': ['7'], '3': ['8'], '4': ['9'], '5': ['10', '11'], '6': ['12'], '10': ['13', '14', '15'], '12': ['16'], '14': ['17'], '17': ['18'], '18': ['19'], '19': ['20']}
-    bids = {'1': 21, '2': 71, '3': 10, '4': 34, '5': 62, '6': 7, '7': 32, '8': 12, '9': 52, '10': 6, '11': 96, '12': 91, '13': 86, '14': 74, '15': 81, '16': 43, '17': 82, '18': 69, '19': 18, '20': 56}
-    allocations, payments = auction_mudan(555, seller_net, reports, bids)
-    print("MUDAN K: ",555)
-    auction_results(allocations,bids, payments)"""
+    node = '14'
 
     seller_net = {'1'}
     reports ={'1': ['2', '3', '4', '5', '6'], '2': ['7'], '3': ['8'], '4': ['9'], '5': ['10', '11'], '6': ['12'], '10': ['13', '14', '15'], '12': ['16'], '14': ['17'], '17': ['18'], '18': ['19'], '19': ['20']}
     bids = {'1': 21, '2': 71, '3': 10, '4': 34, '5': 62, '6': 7, '7': 32, '8': 12, '9': 52, '10': 6, '11': 96, '12': 91, '13': 86, '14': 74, '15': 81, '16': 43, '17': 82, '18': 69, '19': 18, '20': 56}
-    allocations, payments = auction_mudan(18, seller_net, reports, bids)
-    print("MUDAN K: ",18)
-    """print("\npayments:")
-    print(payments)
-    print("\nallocation:")
-    print(allocations)"""
-    print(sum(payments.values()))
-    auction_results(allocations,bids, payments)
-
-    seller_net = {'1'}
-    reports ={'1': ['2', '3', '4', '5', '6'], '2': ['7'], '3': ['8'], '4': ['9'], '5': ['10', '11'], '6': ['12'], '10': ['13', '14', '15'], '12': ['16'], '14': ['17'], '17': ['18'], '18': ['19'], '19': ['20']}
-    bids = {'1': 21, '2': 71, '3': 10, '4': 34, '5': 62, '6': 7, '7': 32, '8': 12, '9': 52, '10': 6, '11': 96, '12': 91, '13': 86, '14': 74, '15': 81, '16': 43, '17': 82, '18': 69, '19': 18, '20': 56}
+    realbid = bids[node]
+    maxbid = max(list(bids.values()))
+    # Caso Base
+    print("Caso Base:\n\n")
     allocations, payments = auction_mudar(5, seller_net, reports, bids)
-    print("MUDAR K: ",555)
     auction_results(allocations,bids, payments)
     print("\npayments:")
     print(payments)
     print("\nallocation:")
     print(allocations)
+    print("Utility per nodo selezionato: " + node)
+    print("Allocation: ",allocations[node])
+    if allocations[node]:
+        print("Utility: ",realbid-payments[node])
+    else:
+        print("Utility: ", -payments[node])
+    
+    # Caso v'< real v
+    print("\n\nCaso v'< real v:\n\n")
+    bids[node] = random.randint(1,realbid)
+    print(bids)
+    allocations, payments = auction_mudar(5, seller_net, reports, bids)
+    auction_results(allocations,bids, payments)
+    print("\npayments:")
+    print(payments)
+    print("\nallocation:")
+    print(allocations)
+    print("Utility per nodo selezionato: " + node)
+    print("Allocation: ",allocations[node])
+    if allocations[node]:
+        print("Utility: ",realbid-payments[node])
+    else:
+        print("Utility: ", -payments[node])
+
+    # Caso v'> v_max
+    print("\n\nCaso v'> v_max:\n\n")
+    bids[node] = random.randint(maxbid+1,2*maxbid)
+    print(bids)
+    allocations, payments = auction_mudar(5, seller_net, reports, bids)
+    auction_results(allocations,bids, payments)
+    print("\npayments:")
+    print(payments)
+    print("\nallocation:")
+    print(allocations)
+    print("Utility per nodo selezionato: " + node)
+    print("Allocation: ",allocations[node])
+    if allocations[node]:
+        print("Utility: ",realbid-payments[node])
+    else:
+        print("Utility: ", -payments[node])
+
+    # Caso real v < v'< v_max
+    print("\n\nCaso real v < v'< v_max:\n\n")
+    bids[node] = random.randint(realbid,maxbid)
+    print(bids)
+    allocations, payments = auction_mudar(5, seller_net, reports, bids)
+    auction_results(allocations,bids, payments)
+    print("\npayments:")
+    print(payments)
+    print("\nallocation:")
+    print(allocations)
+    print("Utility per nodo selezionato: " + node)
+    print("Allocation: ",allocations[node])
+    if allocations[node]:
+        print("Utility: ",realbid-payments[node])
+    else:
+        print("Utility: ", -payments[node])
 
     print("\n\n")
-    print({k: v for k, v in sorted(bids.items(), key=lambda item: item[1], reverse=True)})
