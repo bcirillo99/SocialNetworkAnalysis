@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 
-for t in ["20000","40000","60000"]:
+for t in ["20000","40000","60000","80000"]:
 
     #df_mudan = pd.read_csv("final_results_prior2/20000/MUDAN.csv")
     df_mudar = pd.read_csv("final_results_UCB/"+t+"/MUDAR.csv")

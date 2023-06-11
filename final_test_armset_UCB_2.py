@@ -130,7 +130,7 @@ args = parser.parse_args()
 
 
 
-G, k, T, val, p, arms_set, auctions = input_data(T=args.T)
+G, k, T, val, p, arms_set, auctions = input_data(T=args.T,path_net="data/GenWS2DG_2.txt")
 
 ####################################################################
 
@@ -280,7 +280,7 @@ for auction in list_auction:
         
             if not os.path.exists(path):
                 os.makedirs(path)
-            df1.to_csv(path+"/"+auction+"_1.csv", index=False)
+            df1.to_csv(path+"/"+auction+"_2.csv", index=False)
 
 
 print("\n\n\n\n\n\n\n\n\nEND\n\n\n\n\n\n\n\n\n")
