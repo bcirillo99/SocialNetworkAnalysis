@@ -1,0 +1,7 @@
+nodes: 20000
+edges: 227183
+triangles: 1017162
+clustering coefficient: 0.5902227198057958
+communities: 40
+radius: 35
+diameter: 68

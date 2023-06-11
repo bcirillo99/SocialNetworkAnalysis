@@ -4,19 +4,19 @@ import pandas as pd
 
 
 
-df_mudan = pd.read_csv("final_results/80000/MUDAN.csv")
-df_mudar = pd.read_csv("final_results/80000/MUDAR.csv")
-#df_vcg = pd.read_csv("final_results/80000/VCG.csv")
-df_gidm = pd.read_csv("final_results/80000/GIDM.csv")
+df_mudan = pd.read_csv("final_results_UCB_2/20000/MUDAN_1.csv")
+df_mudar = pd.read_csv("final_results_UCB_2/20000/MUDAR_1.csv")
+#df_vcg = pd.read_csv("final_results_UCB_2/20000/VCG_1.csv")
+df_gidm = pd.read_csv("final_results_UCB_2/20000/GIDM_1.csv")
 
 """df_mudan = df.loc[df['Auction'] == "MUDAN"].reset_index(drop=True)
 df_mudar = df.loc[df['Auction'] == "MUDAR"].reset_index(drop=True)
 df_mixed = df.loc[df['Auction'] == "MIXED"].reset_index(drop=True)"""
 
 results = []
-listk = [1,2,3,4,5]
+listk = [2,3,4,5]
 
-path = "final_results/80000/"
+path = "final_results_UCB_2/20000/"
 
 revenue_ucb_mudar = []
 revenue_bayes_ucb_mudar = []
@@ -42,17 +42,17 @@ for k in listk:
     df_mudan_k = df_mudan.loc[df_mudan['k'] == k].reset_index(drop=True)
     revenue = df_mudan_k['Revenue'].tolist()
     revenue_ucb_mudan.append(revenue[0])
-    revenue_bayes_ucb_mudan.append(revenue[1])
+    #revenue_bayes_ucb_mudan.append(revenue[1])
     """revenue_eps_mudan.append(revenue[2])
     revenue_thompson_mudan.append(revenue[3])"""
-    revenue_thompson_mudan.append(revenue[2])
+    #revenue_thompson_mudan.append(revenue[2])
 
     df_mudar_k = df_mudar.loc[df_mudar['k'] == k].reset_index(drop=True)
     revenue = df_mudar_k['Revenue'].tolist()
     revenue_ucb_mudar.append(revenue[0])
-    revenue_bayes_ucb_mudar.append(revenue[1])
+    #revenue_bayes_ucb_mudar.append(revenue[1])
     #revenue_eps_mudar.append(revenue[2])
-    revenue_thompson_mudar.append(revenue[2])
+    #revenue_thompson_mudar.append(revenue[2])
 
     """df_vcg_k = df_vcg.loc[df_vcg['k'] == k].reset_index(drop=True)
     revenue = df_vcg_k['Revenue'].tolist()
@@ -64,9 +64,9 @@ for k in listk:
     df_gidm_k = df_gidm.loc[df_gidm['k'] == k].reset_index(drop=True)
     revenue = df_gidm_k['Revenue'].tolist()
     revenue_ucb_gidm.append(revenue[0])
-    revenue_bayes_ucb_gidm.append(revenue[1])
+    #revenue_bayes_ucb_gidm.append(revenue[1])
     #revenue_eps_gidm.append(revenue[2])
-    revenue_thompson_gidm.append(revenue[2])
+    #revenue_thompson_gidm.append(revenue[2])
 
 
 fig, axs = plt.subplots(3, figsize=(10,6))

@@ -1,0 +1,6 @@
+p = 22.718/20000
+{'components': 1, 'triangles': 1919, 'edges': 227240, 'nodes': 20000, 'diameter': 5, 'communities': 10, 'coeff': 0.00110799231098385}
+p = 40/20000
+{'components': 1, 'triangles': 10582, 'edges': 400010, 'nodes': 20000, 'diameter': 4, 'communities': 8, 'coeff': 0.00198432568568015}
+p = 60/20000
+{'components': 1, 'triangles': 36084, 'edges': 600422, 'nodes': 20000, 'diameter': 4, 'communities': 6, 'coeff': 0.0030049257852095357}

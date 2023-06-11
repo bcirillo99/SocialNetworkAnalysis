@@ -1,0 +1,5 @@
+,Bandit,Auction,Time (s),T,k,Revenue,armset
+0,UCB,GIDM,46.58,40000,2,1072785.0,pagerank
+1,UCB,GIDM,58.822,40000,3,1450226.0,pagerank
+2,UCB,MUDAN,47.375,40000,4,1668153.0,pagerank
+3,UCB,GIDM,45.034,40000,5,1808662.0,voterank

@@ -251,31 +251,21 @@ def GIDM(k, seller_net, reports: dict, bids: dict):
         Di = {i}.union(C[i])
         N_Di = N - Di
         N_Ck = N - Ck
-        # NON so se serve
-        """for e in Ck:
-            N_Ck.remove((C[e]))"""
         sw_Di,ddd = efficient_allocation(k, [b.name for b in N_Di], bids)
         sw_Ck,alloc_N_Ck = efficient_allocation(k, [b.name for b in N_Ck], bids)
 
-        """print("Ck = ",N_Ck)
-        print("alloc withput ck: ",alloc_N_Ck)
-        print("di: ",Di)
-        print("alloc withput di: ",ddd)"""
+        
         if i in Nopt:
             # bidder vincente
             W.append(i)
             allocations[i.name] = True
             payments[i.name] = sw_Di - sw_Ck + bids[i.name]
-            """print(i)
-            print(sw_Di,ddd)
-            print(sw_Ck,alloc_N_Ck)"""
         else:
             if i in alloc_N_Ck:
                 tree.update_weights(i, C)
                 allocations[i.name] = True
                 payments[i.name] = sw_Di - sw_Ck + bids[i.name]
             else:
-                
                 allocations[i.name] = False
                 payments[i.name] = sw_Di - sw_Ck
 
@@ -283,11 +273,7 @@ def GIDM(k, seller_net, reports: dict, bids: dict):
         for n in tree[i]:
             if tree.W[n] > 0:
                 Q.append(n)
-        
 
-    # calcolo delle ricompense
-
-    #print('winners: ', W)
     return allocations, payments
 
 

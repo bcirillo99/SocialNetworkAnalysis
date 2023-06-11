@@ -1,0 +1,66 @@
+k = 2.71, k = 1, q = 4.1
+it:  0 {'components': 1, 'triangles': 1021576, 'edges': 227606, 'nodes': 20000, 'diameter': 69, 'communities': 40, 'coeff': 0.5918531882969713}
+it:  1 {'components': 1, 'triangles': 1032142, 'edges': 228384, 'nodes': 20000, 'diameter': 65, 'communities': 39, 'coeff': 0.5926260537081225}
+it:  2 {'components': 1, 'triangles': 1012992, 'edges': 226907, 'nodes': 20000, 'diameter': 67, 'communities': 40, 'coeff': 0.5906224965251414}
+it:  3 {'components': 1, 'triangles': 1013549, 'edges': 227030, 'nodes': 20000, 'diameter': 68, 'communities': 40, 'coeff': 0.5918831687933901}
+it:  4 {'components': 1, 'triangles': 1014101, 'edges': 226866, 'nodes': 20000, 'diameter': 72, 'communities': 41, 'coeff': 0.5920788946633732}
+it:  5 {'components': 1, 'triangles': 1023521, 'edges': 227732, 'nodes': 20000, 'diameter': 66, 'communities': 39, 'coeff': 0.5921749261905934}
+it:  6 {'components': 1, 'triangles': 1016583, 'edges': 227229, 'nodes': 20000, 'diameter': 66, 'communities': 41, 'coeff': 0.5914533712835679}
+it:  7 {'components': 1, 'triangles': 1019987, 'edges': 227263, 'nodes': 20000, 'diameter': 59, 'communities': 38, 'coeff': 0.592095667958575}
+it:  8 {'components': 1, 'triangles': 1034069, 'edges': 228575, 'nodes': 20000, 'diameter': 65, 'communities': 40, 'coeff': 0.5916540528749876}
+it:  9 {'components': 1, 'triangles': 1018034, 'edges': 227428, 'nodes': 20000, 'diameter': 68, 'communities': 38, 'coeff': 0.5907468277460556}
+# average
+{'components':1,'triangles':1020655.4,'edges':227502.0,'diameter':66.5,'communities':39.6,'coeff':0.59}
+# error
+{'triangles':+3493.4,'edges':+319}
+--------------------------------------------------
+k = 2.7, k= 1, q = 4
+it:  0 {'components': 1, 'triangles': 1011746, 'edges': 226401, 'nodes': 20000, 'diameter': 60, 'communities': 40, 'coeff': 0.5913209990287321} mean:  22.640099999999997 dev:  5.127638051773936
+it:  1 {'components': 1, 'triangles': 993145, 'edges': 225119, 'nodes': 20000, 'diameter': 65, 'communities': 39, 'coeff': 0.5896880806269265} mean:  22.51190000000001 dev:  4.964801948718599
+it:  2 {'components': 1, 'triangles': 1010718, 'edges': 226278, 'nodes': 20000, 'diameter': 71, 'communities': 39, 'coeff': 0.5911304926964496} mean:  22.627799999999997 dev:  5.189707810657551
+it:  3 {'components': 1, 'triangles': 992829, 'edges': 225229, 'nodes': 20000, 'diameter': 62, 'communities': 41, 'coeff': 0.5894400841488249} mean:  22.522900000000007 dev:  4.87699452429465
+it:  4 {'components': 1, 'triangles': 1000897, 'edges': 225336, 'nodes': 20000, 'diameter': 62, 'communities': 40, 'coeff': 0.5908258707901572} mean:  22.5336 dev:  5.008719501030178
+it:  5 {'components': 1, 'triangles': 1007394, 'edges': 225984, 'nodes': 20000, 'diameter': 64, 'communities': 40, 'coeff': 0.5904240140473874} mean:  22.5984 dev:  5.087486357721266
+it:  6 {'components': 1, 'triangles': 1000947, 'edges': 225392, 'nodes': 20000, 'diameter': 59, 'communities': 36, 'coeff': 0.5912683619722242} mean:  22.539200000000008 dev:  4.98112069317739
+it:  7 {'components': 1, 'triangles': 1015073, 'edges': 226532, 'nodes': 20000, 'diameter': 63, 'communities': 41, 'coeff': 0.5920478492524368} mean:  22.653200000000005 dev:  5.117619540372262
+it:  8 {'components': 1, 'triangles': 1004318, 'edges': 225723, 'nodes': 20000, 'diameter': 69, 'communities': 38, 'coeff': 0.5910983683798559} mean:  22.57230000000001 dev:  5.031776297690508
+it:  9 {'components': 1, 'triangles': 1004117, 'edges': 225954, 'nodes': 20000, 'diameter': 65, 'communities': 39, 'coeff': 0.590476766674185} mean:  22.595399999999998 dev:  5.002319346063384
+{'triangles': 1004118.4, 'edges': 225794.8, 'diameter': 64, 'components': 1.0, 'communities': 39.3, 'coeff': 0.617552, 'mean': 22.57968, 'std': 5.028119}
+# error
+{'triangles: '-13053.6,'edges': -1388.2}
+--------------------------------------------------
+r = 2.71, k = 1, q = 4
+it:  0 {'components': 1, 'triangles': 1027304, 'edges': 227783, 'nodes': 20000, 'diameter': 69, 'communities': 39, 'coeff': 0.5936316933257229} mean:  22.7783 dev:  5.07696258701992
+it:  1 {'components': 1, 'triangles': 1016759, 'edges': 227545, 'nodes': 20000, 'diameter': 65, 'communities': 38, 'coeff': 0.5898903404886336} mean:  22.754499999999997 dev:  4.997502351175034
+it:  2 {'components': 1, 'triangles': 1011619, 'edges': 227372, 'nodes': 20000, 'diameter': 60, 'communities': 38, 'coeff': 0.5898205375609746} mean:  22.737199999999998 dev:  4.859489290038614
+it:  3 {'components': 1, 'triangles': 1006557, 'edges': 226809, 'nodes': 20000, 'diameter': 69, 'communities': 37, 'coeff': 0.5897983674566201} mean:  22.680899999999998 dev:  4.812792867971777
+it:  4 {'components': 1, 'triangles': 1026129, 'edges': 227734, 'nodes': 20000, 'diameter': 62, 'communities': 39, 'coeff': 0.5917755177131546} mean:  22.773399999999995 dev:  5.178074201863082
+it:  5 {'components': 1, 'triangles': 1033698, 'edges': 228376, 'nodes': 20000, 'diameter': 70, 'communities': 43, 'coeff': 0.5926389406818258} mean:  22.837600000000002 dev:  5.190840610151693
+it:  6 {'components': 1, 'triangles': 1010492, 'edges': 226914, 'nodes': 20000, 'diameter': 69, 'communities': 37, 'coeff': 0.5897561391633858} mean:  22.691399999999998 dev:  4.989806212669986
+it:  7 {'components': 1, 'triangles': 1021641, 'edges': 227535, 'nodes': 20000, 'diameter': 60, 'communities': 37, 'coeff': 0.5917338907066539} mean:  22.753500000000003 dev:  5.087901114408572
+it:  8 {'components': 1, 'triangles': 1022109, 'edges': 227645, 'nodes': 20000, 'diameter': 62, 'communities': 40, 'coeff': 0.5921492178884463} mean:  22.764500000000005 dev:  5.015779077072674
+it:  9 {'components': 1, 'triangles': 1027130, 'edges': 228048, 'nodes': 20000, 'diameter': 62, 'communities': 36, 'coeff': 0.5909532318278083} mean:  22.8048 dev:  5.155026378206032
+# average
+{'triangles': 1020343.8, 'edges': 227576.1, 'diameter': 64.8, 'components': 1.0, 'communities': 38.4, 'coeff': 0.5912147876813225, 'mean': 22.757609999999996, 'std': 5.036417469057739}
+# error
+{'triangles': +3181.8,'edges':+393.1}
+--------------------------------------------------
+r = 2.72, k = 1, q = 4
+it:  0 {'components': 1, 'triangles': 1023953, 'edges': 228368, 'nodes': 20000, 'diameter': 66, 'communities': 42, 'coeff': 0.5906227848174854} mean:  22.836800000000004 dev:  4.9301283715538275
+it:  1 {'components': 1, 'triangles': 1034390, 'edges': 229302, 'nodes': 20000, 'diameter': 62, 'communities': 35, 'coeff': 0.5908638287010382} mean:  22.930199999999996 dev:  5.012058255846593
+it:  2 {'components': 1, 'triangles': 1039003, 'edges': 229527, 'nodes': 20000, 'diameter': 63, 'communities': 35, 'coeff': 0.5915638901584798} mean:  22.952700000000004 dev:  5.0979469112575115
+it:  3 {'components': 1, 'triangles': 1045641, 'edges': 230175, 'nodes': 20000, 'diameter': 70, 'communities': 37, 'coeff': 0.5920158803573325} mean:  23.017499999999995 dev:  5.114224647979398
+it:  4 {'components': 1, 'triangles': 1038485, 'edges': 229579, 'nodes': 20000, 'diameter': 57, 'communities': 38, 'coeff': 0.5915256373724347} mean:  22.957900000000006 dev:  5.049973028640847
+it:  5 {'components': 1, 'triangles': 1035030, 'edges': 229539, 'nodes': 20000, 'diameter': 54, 'communities': 43, 'coeff': 0.590691404390127} mean:  22.9539 dev:  5.0167394580544045
+it:  6 {'components': 1, 'triangles': 1028768, 'edges': 228821, 'nodes': 20000, 'diameter': 68, 'communities': 42, 'coeff': 0.5912352924309956} mean:  22.882099999999998 dev:  4.919329180894485
+it:  7 {'components': 1, 'triangles': 1032087, 'edges': 228814, 'nodes': 20000, 'diameter': 70, 'communities': 40, 'coeff': 0.5913212259291368} mean:  22.881399999999996 dev:  5.05875815195785
+it:  8 {'components': 1, 'triangles': 1043196, 'edges': 229814, 'nodes': 20000, 'diameter': 65, 'communities': 41, 'coeff': 0.5906723590957792} mean:  22.981400000000004 dev:  5.216747457947337
+it:  9 {'components': 1, 'triangles': 1045242, 'edges': 229740, 'nodes': 20000, 'diameter': 66, 'communities': 39, 'coeff': 0.5924289863756218} mean:  22.973999999999993 dev:  5.193921832295901
+# average
+{'triangles': 1036579.5, 'edges': 229367.9, 'diameter': 64.1, 'components': 1.0, 'communities': 39.2, 'coeff': 0.5912941289628431, 'mean': 22.93679, 'std': 5.060982729642815}
+# error
+{'triangles': +19417.5,'edges': +2184.9 }
+
+La migliore soluzione basandosi sull'errore risulta essere:
+r = 2.71, k = 1, q = 4
+

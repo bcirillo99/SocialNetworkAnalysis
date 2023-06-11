@@ -1,14 +1,15 @@
 import os
 from matplotlib import pyplot as plt
 import pandas as pd
-for t in ["20000","80000"]:
-    path = "final_results_prior/"+t+"/"
-    df = pd.read_csv(path+"MUDAR.csv")
+for auction in ["MUDAR","MUDAN","GIDM"]:
+    t="60000"
+    path = "final_results_UCB_2/"+t
+    df = pd.read_csv(path+"/"+auction+"_1.csv")
 
     df_normal = df.loc[df['armset'] == "normal"].reset_index(drop=True)
     df_degree = df.loc[df['armset'] == "degree"].reset_index(drop=True)
     df_page = df.loc[df['armset'] == "pagerank"].reset_index(drop=True)
-    #df_vcg = pd.read_csv("final_results/20000/VCG.csv")
+    #df_vcg = pd.read_csv("final_results/60000/VCG.csv")
     df_vote = df.loc[df['armset'] == "voterank"].reset_index(drop=True)
     df_s_deg = df.loc[df['armset'] == "shapley_degree"].reset_index(drop=True)
     df_s_thresh = df.loc[df['armset'] == "shapley_threshold"].reset_index(drop=True)
@@ -19,7 +20,7 @@ for t in ["20000","80000"]:
     df_mixed = df.loc[df['Auction'] == "MIXED"].reset_index(drop=True)"""
 
     results = []
-    listk = [1,2,3,4,5]
+    listk = [2,3,4,5]
 
     revenue_ucb_normal = []
     revenue_bayes_ucb_normal = []
@@ -53,21 +54,21 @@ for t in ["20000","80000"]:
     for k in listk:
         df_normal_k = df_normal.loc[df_normal['k'] == k].reset_index(drop=True)
         revenue = df_normal_k['Revenue'].tolist()
-        revenue_ucb_normal.append(revenue[0])
-        revenue_bayes_ucb_normal.append(revenue[1])
-        revenue_thompson_sampling_normal.append(revenue[2])
+        #revenue_ucb_normal.append(revenue[0])
+        """revenue_bayes_ucb_normal.append(revenue[1])
+        revenue_thompson_sampling_normal.append(revenue[2])"""
 
         df_degree_k = df_degree.loc[df_degree['k'] == k].reset_index(drop=True)
         revenue = df_degree_k['Revenue'].tolist()
         revenue_ucb_degree.append(revenue[0])
-        revenue_bayes_ucb_degree.append(revenue[1])
-        revenue_thompson_sampling_degree.append(revenue[3])
+        """revenue_bayes_ucb_degree.append(revenue[1])
+        revenue_thompson_sampling_degree.append(revenue[3])"""
 
         df_page_k = df_page.loc[df_page['k'] == k].reset_index(drop=True)
         revenue = df_page_k['Revenue'].tolist()
         revenue_ucb_page.append(revenue[0])
-        revenue_bayes_ucb_page.append(revenue[1])
-        revenue_thompson_sampling_page.append(revenue[3])
+        """revenue_bayes_ucb_page.append(revenue[1])
+        revenue_thompson_sampling_page.append(revenue[3])"""
 
         """df_vcg_k = df_vcg.loc[df_vcg['k'] == k].reset_index(drop=True)
         revenue = df_vcg_k['Revenue'].tolist()
@@ -79,30 +80,11 @@ for t in ["20000","80000"]:
         df_vote_k = df_vote.loc[df_vote['k'] == k].reset_index(drop=True)
         revenue = df_vote_k['Revenue'].tolist()
         revenue_ucb_vote.append(revenue[0])
-        revenue_bayes_ucb_vote.append(revenue[1])
-        revenue_thompson_sampling_vote.append(revenue[3])
+        """revenue_bayes_ucb_vote.append(revenue[1])
+        revenue_thompson_sampling_vote.append(revenue[3])"""
         
-        df_s_deg_k = df_s_deg.loc[df_s_deg['k'] == k].reset_index(drop=True)
-        print(df_s_deg_k)
-        revenue = df_s_deg_k['Revenue'].tolist()
-        revenue_ucb_s_deg.append(revenue[0])
-        revenue_bayes_ucb_s_deg.append(revenue[1])
-        revenue_thompson_sampling_s_deg.append(revenue[3])
 
-
-        df_s_thresh_k = df_s_thresh.loc[df_s_thresh['k'] == k].reset_index(drop=True)
-        revenue = df_s_thresh_k['Revenue'].tolist()
-        revenue_ucb_s_thresh.append(revenue[0])
-        revenue_bayes_ucb_s_thresh.append(revenue[1])
-        revenue_thompson_sampling_s_thresh.append(revenue[3])
-
-        df_s_clos_k = df_s_clos.loc[df_s_clos['k'] == k].reset_index(drop=True)
-        revenue = df_s_clos_k['Revenue'].tolist()
-        revenue_ucb_s_clos.append(revenue[0])
-        revenue_bayes_ucb_s_clos.append(revenue[1])
-        revenue_thompson_sampling_s_clos.append(revenue[3])
-
-
+    """
     fig, axs = plt.subplots(6, figsize=(10,10))
 
     axs[0].plot(listk, revenue_ucb_degree, label = 'UCB')
@@ -162,24 +144,25 @@ for t in ["20000","80000"]:
 
     fig.tight_layout(pad=0.5)
     plt.savefig(path+'armset_chart.png')
-    #plt.show()
+    #plt.show()"""
 
-    fig, axs = plt.subplots(3, figsize=(10,6))
+    fig, axs = plt.subplots(1, figsize=(10,6))
 
 
-    axs[0].plot(listk, revenue_ucb_degree, label = 'Degree')
-    axs[0].plot(listk, revenue_ucb_page, label = 'PageRank')
-    axs[0].plot(listk, revenue_ucb_vote, label = 'VoteRank')
-    axs[0].plot(listk, revenue_ucb_normal, label = 'Normal')
-    axs[0].plot(listk, revenue_ucb_s_deg, label = 's. degree')
-    axs[0].plot(listk, revenue_ucb_s_thresh, label = 's. threshold')
-    axs[0].plot(listk, revenue_ucb_s_clos, label = 's. closeness')
-    axs[0].set_xlabel('k')
-    axs[0].set_xticks(listk, listk)
-    axs[0].set_ylabel('Revenue')
-    axs[0].set_title("UCB")
-    axs[0].legend()
-
+    axs.plot(listk, revenue_ucb_degree, label = 'Degree')
+    axs.plot(listk, revenue_ucb_page, label = 'PageRank')
+    axs.plot(listk, revenue_ucb_vote, label = 'VoteRank')
+    #axs.plot(listk, revenue_ucb_normal, label = 'Normal')
+    """
+    axs.plot(listk, revenue_ucb_s_deg, label = 's. degree')
+    axs.plot(listk, revenue_ucb_s_thresh, label = 's. threshold')
+    axs.plot(listk, revenue_ucb_s_clos, label = 's. closeness')"""
+    axs.set_xlabel('k')
+    axs.set_xticks(listk, listk)
+    axs.set_ylabel('Revenue')
+    axs.set_title(auction)
+    axs.legend()
+    """
     axs[1].plot(listk, revenue_bayes_ucb_degree, label = 'Degree')
     axs[1].plot(listk, revenue_bayes_ucb_page, label = 'PageRank')
     axs[1].plot(listk, revenue_bayes_ucb_vote, label = 'VoteRank')
@@ -204,10 +187,12 @@ for t in ["20000","80000"]:
     axs[2].set_xticks(listk, listk)
     axs[2].set_ylabel('Revenue')
     axs[2].set_title("Thompson Sampling")
-    axs[2].legend()
+    axs[2].legend()"""
 
     fig.tight_layout(pad=0.5)
-    plt.savefig(path+'bandit_charts.png')
+    if not os.path.exists(path+'/plot/'):
+        os.makedirs(path+'/plot/')
+    plt.savefig(path+'/plot/'+auction+'_bandit_charts_1.png')
 
     print(listk)
     #plt.show()

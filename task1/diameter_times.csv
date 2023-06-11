@@ -1,0 +1,5 @@
+Network,Directed,Nodes,Edges,Algorithm,Time (s),Diameter
+musae_facebook_edges,False,22470,171002,Standard,2256.88,15
+musae_facebook_edges,False,22470,171002,Parallel standard,1143.203,15
+musae_facebook_edges,False,22470,171002,Optimized,1.058,6
+musae_facebook_edges,False,22470,171002,Networkx,1591.836,15

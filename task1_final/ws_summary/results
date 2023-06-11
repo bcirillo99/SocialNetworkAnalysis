@@ -1,0 +1,20 @@
+k = 0, q = 2
+radius: 2.6 nodes:  20000 edges:  209756 triangles:  870206 diameter:  88 components:  1 communities:  43 coeff:  0.5928633222481527
+radius: 2.7 nodes:  20000 edges:  225639 triangles:  1004851 diameter:  83 components:  1 communities:  40 coeff:  0.5930143540696413
+radius: 2.8 nodes:  20000 edges:  242314 triangles:  1158450 diameter:  82 components:  1 communities:  38 coeff:  0.5920829420135039
+------------------
+k = 1, q = 2
+radius: 2.6 nodes:  20000 edges:  219022 triangles:  867778 diameter:  9 components:  1 communities:  37 coeff:  0.5419316971547097
+radius: 2.7 nodes:  20000 edges:  235899 triangles:  1017951 diameter:  10 components:  1 communities:  33 coeff:  0.5458839526929864
+radius: 2.8 nodes:  20000 edges:  252197 triangles:  1167407 diameter:  9 components:  1 communities:  33 coeff:  0.5503318639307756
+------------------
+#Notiamo che con un raggio di 2.6 il numero di triangoli è ancora troppo basso, mentre con 2.8 è troppo alto
+#Notiamo come all'aumentare di k il diametro aumenta. Per questo motivo non abbiamo provato per k > 1
+------------------
+k = 1, q = 4
+radius: 2.7 nodes:  20000 edges:  225305 triangles:  999133 diameter:  63 components:  1 communities:  38 coeff:  0.5927214295051836 mean:  22.531 std:  4.888
+radius: 2.71 nodes:  20000 edges:  228708 triangles:  1031733 diameter:  62 components:  1 communities:  38 coeff:  0.5913494008019897 mean:  22.871 std:  5.087
+radius: 2.72 nodes:  20000 edges:  229328 triangles:  1037063 diameter:  67 components:  1 communities:  37 coeff:  0.5905335978646186 mean:  22.933 std:  5.123
+radius: 2.73 nodes:  20000 edges:  231381 triangles:  1057663 diameter:  65 components:  1 communities:  40 coeff:  0.5916433256281367 mean:  23.138 std:  5.18
+------------------
+# Notiamo come il parametro q riesce a regolare la creazione di archi weak-tie aumentando il diametro rispetto al caso 2

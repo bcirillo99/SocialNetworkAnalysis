@@ -5,7 +5,7 @@ import pandas as pd
 
 
 results = []
-listk = [1,2,3,4,5]
+listk = [2,3,4,5]
 
 
 revenue_ucb_page = []
@@ -23,15 +23,15 @@ revenue_ucb_40000_vote = []
 revenue_ucb_60000_vote = []
 revenue_ucb_80000_vote = []
 
-for n in ["20000","40000","60000","80000"]:
+for n in ["20000","40000","60000"]:
 
-    path = "final_results_UCB/"+n+"/"
-    df = pd.read_csv(path+"MUDAR.csv")
+    path = "final_results_UCB_2/"+n+"/"
+    df = pd.read_csv(path+"GIDM_1.csv")
 
 
     df_degree = df.loc[df['armset'] == "degree"].reset_index(drop=True)
     df_page = df.loc[df['armset'] == "pagerank"].reset_index(drop=True)
-    #df_vcg = pd.read_csv("final_results/80000/VCG.csv")
+    #df_vcg = pd.read_csv("final_results/80000/VCG_1.csv")
     df_vote = df.loc[df['armset'] == "voterank"].reset_index(drop=True)
 
     """df_degree = df.loc[df['Auction'] == "Degree"].reset_index(drop=True)
@@ -84,7 +84,7 @@ for n in ["20000","40000","60000","80000"]:
     
     
 
-fig, axs = plt.subplots(4, figsize=(10,6))
+fig, axs = plt.subplots(3, figsize=(10,6))
 
 axs[0].plot(listk, revenue_ucb_degree, label = 'Degree')
 axs[0].plot(listk, revenue_ucb_page, label = 'PageRank')
@@ -112,6 +112,7 @@ axs[2].set_xticks(listk, listk)
 axs[2].set_ylabel('Revenue')
 axs[2].set_title("UCB T=60000")
 axs[2].legend()
+"""
 
 axs[3].plot(listk, revenue_ucb_80000_degree, label = 'Degree')
 axs[3].plot(listk, revenue_ucb_80000_page, label = 'PageRank')
@@ -120,10 +121,10 @@ axs[3].set_xlabel('k')
 axs[3].set_xticks(listk, listk)
 axs[3].set_ylabel('Revenue')
 axs[3].set_title("UCB T=80000")
-axs[3].legend()
+axs[3].legend()"""
 
 fig.tight_layout(pad=0.5)
-path = "final_results_UCB/"
-plt.savefig(path+'armset_charts.png')
+path = "final_results_UCB_2/GIDM"
+plt.savefig(path+'armset_charts_1.png')
 
 

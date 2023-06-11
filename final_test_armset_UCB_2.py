@@ -232,8 +232,8 @@ gaussian_dist_shapley_closeness = initialize_arms_prior(cen,arms_set_shapley_clo
 
 listk = [2,3,4,5] # Range of k values
 list_auction = ["MUDAR", "MUDAN", "GIDM"] # Different Auctions
-dict_armset = {"normal": arms_set, "pagerank": arms_set_page_rank, "degree": arms_set_degree, "voterank": arms_set_vote_rank}
-dict_distributions = {"normal": gaussian_dist_normal,"pagerank": gaussian_dist_pagerank, "degree": gaussian_dist_degree, "voterank": gaussian_dist_vote_rank}
+dict_armset = {"pagerank": arms_set_page_rank, "degree": arms_set_degree, "voterank": arms_set_vote_rank}
+dict_distributions = {"pagerank": gaussian_dist_pagerank, "degree": gaussian_dist_degree, "voterank": gaussian_dist_vote_rank}
 dict_results =  {'Bandit':[],'Auction':[], 'Time (s)':[], 'T':[], 'k': [], "Revenue":[]}
 
 ########################## Normal armset ###########################
@@ -276,7 +276,7 @@ for auction in list_auction:
             print()
 
             df1 = pd.DataFrame(dict_results, columns=['Bandit','Auction', 'Time (s)', 'T', 'k', 'Revenue','armset'])
-            path = "final_results_UCB/"+str(T)
+            path = "final_results_UCB_2/"+str(T)
         
             if not os.path.exists(path):
                 os.makedirs(path)

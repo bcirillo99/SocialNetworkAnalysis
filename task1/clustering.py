@@ -191,55 +191,99 @@ def girman_newman(G):
     return list(nx.connected_components(graph))
 
 
-# Spectral clustering algorithm
+def k_means(k, G):
+    nodes = list(G.nodes())
+    k_nodes = []
+    clusters = []
+    # nodi aggiunti ai cluster
+    added_nodes = []
+    # scelta di k nodi casuali
+    for _ in range(k):
+        done = False
+        while not done:
+            u = random.choice(nodes)
+            # not in [v for v in G[k] for k in k_nodes]
+            if u not in k_nodes and u:
+                k_nodes.append(u)
+                done = True
+
+    # inizializzazione dei cluster
+    for n in k_nodes:
+        clusters.append({n})
+        added_nodes.append(n)
+
+    added = k
+    while added < G.number_of_nodes():
+        # il nodo x viene scelto casualmente tra nodi che rispettano le seguenti condizioni:
+        # 1. x non deve appartenere a nessuno dei k cluster
+        # 2. uno dei figli di x deve appartenere a uno dei k cluster
+        x = random.choice([el for el in G.nodes() if el not in added_nodes and (len(
+            set(G.neighbors(el)).intersection(set(added_nodes))) != 0)])
+        for n in range(k):
+            if len(set(G.neighbors(x)).intersection(clusters[n])) != 0:
+                clusters[n].add(x)
+                added_nodes.append(x)
+                added += 1
+                break
+    return clusters
+
+
 def spectral(G):
-   n=G.number_of_nodes()
-   nodes=sorted(G.nodes())
-   # Laplacian of a graph is a matrix, with diagonal entries being the degree of the corresponding node
-   # and off-diagonal entries being -1 if an edge between the corresponding nodes exists and 0 otherwise
-   L = nx.laplacian_matrix(G, nodes).asfptype()
-   # print(L) #To see the laplacian of G uncomment this line
-   # The following command computes eigenvalues and eigenvectors of the Laplacian matrix.
-   # Recall that these are scalar numbers w_1, ..., w_k and vectors v_1, ..., v_k such that Lv_i=w_iv_i.
-   # The first output is the array of eigenvalues in increasing order.
-   # The second output contains the matrix of eigenvectors:
-   # specifically, the eigenvector of the k-th eigenvalue is given by the k-th column of v
-   w, v = linalg.eigsh(L,n-1)
-   # print(w) #Print the list of eigenvalues
-   # print(v) #Print the matrix of eigenvectors
-   # print(v[:,0]) #Print the eigenvector corresponding to the first returned eigenvalue
-#
-   # Partition in clusters based on the corresponding eigenvector value being positive or negative
-   # This is known to return (an approximation of) the sparset cut of the graph
-   # That is, the cut with each of the clusters having many edges, and with few edge among clusters
-   # Note that this is not the minimum cut (that only requires few edge among clusters,
-   # but it does not require many edge within clusters)
-   c1= set()
-   c2=set()
-   for i in range(n):
-       if v[i,0] < 0:
-           c1.add(nodes[i])
-       else:
-           c2.add(nodes[i])
-   return (c1, c2)
-# How to achieve more than two clusters? Two options:
-# (i) for each subgraph corresponding to one of the clusters, we can split this subgraph by running the spectral algorithm on it;
+    n = G.number_of_nodes()
+    nodes = sorted(G.nodes())
+    L = nx.laplacian_matrix(G,nodes).asfptype()
+
+    # Laplacian of a graph is a matrix, with diagonal entries being the degree of the corresponding node and off-diagonal entries being -1 if an edge between the corresponding nodes exists and 0 otherwise
+    # print(L) #To see the laplacian of G uncomment this line
+    # The following command computes eigenvalues and eigenvectors of the Laplacian matrix.
+    # Recall that these are scalar numbers w_1, ..., w_k and vectors v_1, ..., v_k such that Lv_i=w_iv_i.
+    # The first output is the array of eigenvalues in increasing order. The second output contains the matrix of eigenvectors: specifically, the eigenvector of the k-th eigenvalue is given by the k-th column of v
+    w, v = linalg.eigsh(L, n - 1)
+    # print(w) #Print the list of eigenvalues
+    # print(v) #Print the matrix of eigenvectors
+    # print(v[:,0]) #Print the eigenvector corresponding to the first returned eigenvalue
+
+    # Partition in clusters based on the corresponding eigenvector value being positive or negative
+    # This is known to return (an approximation of) the sparset cut of the graph
+    # That is, the cut with each of the clusters having many edges, and with few edge among clusters
+    # Note that this is not the minimum cut (that only requires few edge among clusters, but it does not require many edge within clusters)
+    c1 = set()
+    c2 = set()
+
+    for i in range(n):
+        print(v[i, 0])
+        if v[i, 0] < 0:
+            c1.add(nodes[i])
+        else:
+            c2.add(nodes[i])
+
+    return (c1, c2)
+
+
+def spectral_k(k, G):
+    n = G.number_of_nodes()
+    nodes = sorted(G.nodes())
+    L = nx.laplacian_matrix(G,
+                            nodes).asfptype()
+    w, v = linalg.eigsh(L, n - 1)
+    # numero di autovettori da considerare
+    n_comp = math.ceil(np.log2(k))
+    clusters = {}
+    for i in range(n):
+        cod = str(np.where(v[i, 0:n_comp] > 0, 1, 0))
+        n = nodes[i]
+        if cod not in clusters.keys():
+            clusters[cod] = {n}
+        else:
+            clusters[cod].add(n)
+    return list(clusters.values())
+
+# How to achieve more than two clusters? 
 # (ii) we can use further eigenvectors. For example, we can partition nodes in four clusters by using the first two eigenvectors,
 #so that the first (second, respectively) cluster contains those nodes i such that v[i,0] and v[i,1] are both negative (both non-negative, resp.)
 # while the third (fourth, respectively) cluster contains those nodes i such that only v[i,0] (only v[i,1], resp.) is negative.
 
-# CENTRALITY MEASURES
-# Returns the top k nodes of G according to the centrality measure "measure"
-def top(G, measure, k):
-   pq = PriorityQueue()
-   cen = measure(G)
-   for u in G.nodes():
-       pq.add(u, -cen[
-           u])  # We use negative value because PriorityQueue returns first values whose priority value is lower
-   out = []
-   for i in range(k):
-       out.append(pq.pop())
-   return out
+
 
 
 if __name__ == '__main__':

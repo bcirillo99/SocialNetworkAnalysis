@@ -2,6 +2,7 @@ import copy
 import matplotlib.pyplot as plt
 from argparse import ArgumentParser
 import numpy as np
+import pandas as pd
 from tqdm import tqdm
 import math
 import networkx as nx
@@ -10,6 +11,7 @@ import random
 import sys
 # adding Folder_2 to the system path
 sys.path.insert(0, '../')
+from lesson5 import GenWS2DG
 from utils import *
 from operator import itemgetter
 
@@ -113,7 +115,8 @@ class UCB_Learner:
     def __init__(self, arms_set, environment): 
         self.__arms_set = arms_set #initialize the set of arms
         self.__environment = environment #initialize the environment
-        self.__t = 1 #UNCOMMENT THIS FOR UNKNOWN TIME HORIZON
+        self.__t = 1 
+
         # Next initialization will serve for computing the best strategy during exploitation steps
         self.__num = {a:0 for a in arms_set} #It saves the number of times arm a has been selected
         self.__rew = {a:0 for a in arms_set} #It saves the cumulative reward achieved by arm a when selected
@@ -127,11 +130,62 @@ class UCB_Learner:
     def play_arm(self):
         a_t = max(self.__ucb, key=self.__ucb.get)  #We choose the arm that has the highest average revenue
         reward = self.__environment.receive_reward(a_t) #We save the reward assigned by the environment
+        
+        # We update the number of times arm a_t has been chosen, its cumulative reward and its UCB value
+        self.__num[a_t] += 1
+        self.__rew[a_t] += reward
+        self.__avgrew[a_t] = self.__rew[a_t]/self.__num[a_t]
+
+        self.__ucb[a_t] = self.__avgrew[a_t] + math.sqrt(2*math.log(self.__t)/self.__num[a_t])
+        self.__t += 1
+
+        return a_t, reward
+    
+    def get_best_arm_approx(self):
+        return self.__avgrew[max(self.__avgrew, key=self.__avgrew.get)]
+    
+class Bayes_UCB_Learner:
+    """An implemantation of the Bayesian UCB bandit algorithm implemented in the \"Introduction to multi-armed bandits.\" Foundations and Trends® in Machine Learning 12.1-2 (2019): 1-286  """
+
+    def __init__(self, arms_set, environment,gaussian_dist=None): 
+        self.__arms_set = arms_set #initialize the set of arms
+        self.__environment = environment #initialize the environment
+        self.__t = 1
+        # Next initialization will serve for computing the best strategy during exploitation steps
+        self.__num = {a:0 for a in arms_set} #It saves the number of times arm a has been selected
+        self.__rew = {a:0 for a in arms_set} #It saves the cumulative reward achieved by arm a when selected
+        self.__avgrew = {a:0 for a in arms_set}  #It saves the average reward achieved by arm a until the current time step
+
+        #It saves the ucb value of each arm until the current time step
+        #It is initialised to infinity in order to allow that each arm is selected at least once
+        
+        self.__ucb = {a:float('inf') for a in arms_set}
+        self.__ucb_scale = 1.96
+
+        if gaussian_dist is not None:
+            self.__gaussian_dist = gaussian_dist
+        else:
+            self.__gaussian_dist = {a:(0,1) for a in arms_set}  
+
+    # This function returns the arm chosen by the learner and the corresponding reward returned by the environment
+    def play_arm(self):
+        a_t = max(self.__ucb, key=self.__ucb.get)  #We choose the arm that has the highest average revenue
+        reward = self.__environment.receive_reward(a_t) #We save the reward assigned by the environment
         # We update the number of times arm a_t has been chosen, its cumulative reward and its UCB value
         self.__num[a_t] += 1
         self.__rew[a_t] += reward
         self.__avgrew[a_t] = self.__rew[a_t]/self.__num[a_t]
         #print("T: ", self.__t)
+        mu, sigma = self.__gaussian_dist[a_t]
+        n = self.__num[a_t]
+        mu = (mu * (n-1) + reward) / n
+        sigma = (sigma * (n - 2) + (reward - mu) ** 2) / (n - 1) if n > 1 else 1
+        self.__gaussian_dist[a_t] =  (mu, sigma)
+
+        self.__ucb[a_t] = mu + (self.__ucb_scale * sigma)/ np.sqrt(n)
+
+
+
         self.__ucb[a_t] = self.__avgrew[a_t] + math.sqrt(2*math.log(self.__t)/self.__num[a_t])
         self.__t += 1
 
@@ -141,47 +195,8 @@ class UCB_Learner:
         return self.__avgrew[max(self.__avgrew, key=self.__avgrew.get)]
 
 class Thompson_Learner:
-    def __init__(self, arms_set, environment): 
-        self.__arms_set = arms_set #initialize the set of arms
-        self.__environment = environment #initialize the environment
-        self.__t = 1 #UNCOMMENT THIS FOR UNKNOWN TIME HORIZON
-        # Next initialization will serve for computing the best strategy during exploitation steps
-        self.__num = {a:0 for a in arms_set} #It saves the number of times arm a has been selected
-        self.__rew = {a:0 for a in arms_set} #It saves the cumulative reward achieved by arm a when selected
-        self.__avgrew = {a:0 for a in arms_set}  #It saves the average reward achieved by arm a until the current time step
 
-        #It saves the alfa and beta values of the beta distribution of each arm until the current time step
-        #It is initialised to (1,1) in order to have a uniform prior for each arm
-        self.__beta_dist = {a:(1,1) for a in arms_set}  
-
-
-    # This function returns the arm chosen by the learner and the corresponding reward returned by the environment
-    def play_arm(self):
-        beta_max = 0
-        for arm in self.__arms_set:
-            alfa, beta = self.__beta_dist[arm]
-            beta_value = random.betavariate(alfa, beta)
-            if beta_value > beta_max:
-                beta_max = beta_value
-                a_t = arm
-        reward = self.__environment.receive_reward(a_t) #We save the reward assigned by the environment
-        # We update the number of times arm a_t has been chosen, its cumulative reward and its UCB value
-        self.__num[a_t] += 1
-        self.__rew[a_t] += reward
-        self.__avgrew[a_t] = self.__rew[a_t]/self.__num[a_t]
-        alfa, beta = self.__beta_dist[arm]
-        alfa += reward
-        # beta += max(1 - reward, 0)
-        beta += 1
-        self.__t += 1
-        # manca aggiornamento beta
-
-        return a_t, reward
-    
-    def get_best_arm_approx(self):
-        return self.__avgrew[max(self.__avgrew, key=self.__avgrew.get)]
-    
-class Gaussian_Thompson_Learner:
+    """An implemantation of the Gaussian Thompson sampling bandit algorithm implemented in the \"Introduction to multi-armed bandits.\" Foundations and Trends® in Machine Learning 12.1-2 (2019): 1-286 """
     def __init__(self, arms_set, environment, gaussian_dist=None): 
         self.__arms_set = arms_set #initialize the set of arms
         self.__environment = environment #initialize the environment
@@ -212,6 +227,7 @@ class Gaussian_Thompson_Learner:
         self.__num[a_t] += 1
         self.__rew[a_t] += reward
         self.__avgrew[a_t] = self.__rew[a_t]/self.__num[a_t]
+        
         mu, sigma = self.__gaussian_dist[arm]
 
         n = self.__num[a_t]
@@ -226,7 +242,6 @@ class Gaussian_Thompson_Learner:
     
     def get_best_arm_approx(self):
         return self.__avgrew[max(self.__avgrew, key=self.__avgrew.get)]
-    
 
 
 if __name__ == '__main__':
@@ -234,8 +249,8 @@ if __name__ == '__main__':
 
     parser = ArgumentParser()
     parser.add_argument('--directed', help='type of Graph', type=bool, default=False)
-    parser.add_argument('--T', help='Time Horizon', type=int, default=10)
-    parser.add_argument('--N', help='number of simulations', type=int, default=1)
+    parser.add_argument('--T', help='Time Horizon', type=int, default=10000)
+    parser.add_argument('--N', help='number of simulations', type=int, default=5)
     parser.add_argument('--file_name', help='noem file di testo su cui salvare i risultati', type=str, default="results.csv")
     
     args = parser.parse_args()
@@ -255,42 +270,8 @@ if __name__ == '__main__':
     N = args.N #number of simulations
 
     file_name = args.file_name
-    
-    if directed:
-        #G = create_graph_from_txt('../data/Cit-HepTh.txt', sep='\t', directed=True)
-        G = create_graph_from_csv('../data/soc-sign-bitcoinalpha.csv', directed=True)
-        G = create_graph_from_txt('../data/retweet.txt', sep=' ', directed=True)
-        """G = nx.DiGraph()
-        G.add_edge('A', 'B')
-        G.add_edge('A','D')
-        G.add_edge('B', 'E')
-        G.add_edge('B', 'C')
-        G.add_edge('C', 'E')
-        G.add_edge('C', 'D')
-        G.add_edge('C', 'F')"""
-    else:
-        #G = create_graph_from_csv('../data/food_facebook.csv')
-        G = create_graph_from_txt('../data/dolphins.txt', sep=' ')
-        """G = nx.Graph()
-        G.add_edge('A', 'B')
-        G.add_edge('A', 'C')
-        G.add_edge('A', 'D')
-        G.add_edge('B', 'E')
-        G.add_edge('D', 'E')
-        G.add_edge('E', 'F')
-        G.add_edge('E', 'G')
-        G.add_edge('D', 'H')
-        G.add_edge('H', 'I')
-        G.add_edge('I', 'L')
-        G.add_edge('L', 'D')
-        G.add_edge('L', 'A')
-        G.add_edge('A', 'M')
-        G.add_edge('M', 'N')
-        G.add_edge('M', 'Q')
-        G.add_edge('Q', 'P')
-        G.add_edge('P', 'N')
-        G.add_edge('P', 'O')
-        G.add_edge('O', 'N')"""
+
+    G = GenWS2DG(300,2.71,1,4)
 
     s = f'\ Network ---> directed: {G.is_directed()}, node: {G.number_of_nodes()}, edges: {G.number_of_edges()}'
     print(s)
@@ -308,12 +289,12 @@ if __name__ == '__main__':
     eps_regrets = {n: {t: 0 for t in range(T)} for n in range(N)} #regret matrix for the eps-greedy learner
     ucb_regrets = {n: {t: 0 for t in range(T)} for n in range(N)} #regret matrix for the UCB learner
     bayes_ucb_regrets = {n: {t: 0 for t in range(T)} for n in range(N)} #regret matrix for bayes UCB learner
-    bayes_ucb_regrets = {n: {t: 0 for t in range(T)} for n in range(N)} #regret matrix for bayes UCB learner
+    th_regrets = {n: {t: 0 for t in range(T)} for n in range(N)} #regret matrix for bayes UCB learner
 
     eps_rewards = {n: {t: 0 for t in range(T)} for n in range(N)} #reward matrix for the eps-greedy learner
     ucb_rewards = {n: {t: 0 for t in range(T)} for n in range(N)} #reward matrix for the UCB learner
     bayes_ucb_rewards = {n: {t: 0 for t in range(T)} for n in range(N)} #reward matrix for bayes UCB learner
-    bayes_ucb_rewards = {n: {t: 0 for t in range(T)} for n in range(N)} #reward matrix for bayes UCB learner
+    th_rewards = {n: {t: 0 for t in range(T)} for n in range(N)} #reward matrix for bayes UCB learner
 
 
     #INITIALIZATION FOR EPS-GREEDY
@@ -330,12 +311,12 @@ if __name__ == '__main__':
         ucb_cum_reward = 0 #it saves the cumulative reward of the UCB learner
         eps_cum_reward = 0 #it saves the cumulative reward of the eps-greedy learner
         bayes_ucb_cum_reward = 0 #it saves the cumulative reward of the bayes_ucb learner 
-        bayes_ucb_cum_reward = 0 #it saves the cumulative reward of the bayes_ucb learner 
+        th_cum_reward = 0 #it saves the cumulative reward of the th learner 
 
         cum_ucb_opt_reward = 0 #it saves the cumulative reward of the UCB learner best-arm in hindsight
         cum_eps_opt_reward = 0 #it saves the cumulative reward of the eps-greedy learner best-arm in hindsight
         cum_bayes_ucb_opt_reward = 0 #it saves the cumulative reward of the bayes ucb learner best-arm in hindsight
-        cum_bayes_ucb_opt_reward = 0 #it saves the cumulative reward of the bayes ucb learner best-arm in hindsight
+        cum_th_opt_reward = 0 #it saves the cumulative reward of the bayes ucb learner best-arm in hindsight
 
         #Environment
         env = Social_Environment(G,prob_dict)
@@ -346,12 +327,11 @@ if __name__ == '__main__':
         #Bayes UCB Learner
         bayes_ucb_learn = Bayes_UCB_Learner(arms_set, env)  
         #Bayes UCB Learner
-        bayes_ucb_learn = Thompson_Learner(arms_set, env)  
+        th_learn = Thompson_Learner(arms_set, env)  
 
         for t in tqdm(range(T)):
             
             #reward obtained by the eps_greedy learner
-            print(t)
             a, reward = eps_learn.play_arm()
             eps_cum_reward += reward
 
@@ -363,14 +343,14 @@ if __name__ == '__main__':
             a, reward = bayes_ucb_learn.play_arm()
             bayes_ucb_cum_reward += reward
 
-            # reward obtained by the bayes_ucb learner
-            a, reward = bayes_ucb_learn.play_arm()
-            bayes_ucb_cum_reward += reward
+            # reward obtained by the th learner
+            a, reward = th_learn.play_arm()
+            th_cum_reward += reward
 
             cum_eps_opt_reward += eps_learn.get_best_arm_approx()
             cum_ucb_opt_reward += ucb_learn.get_best_arm_approx()
             cum_bayes_ucb_opt_reward += bayes_ucb_learn.get_best_arm_approx()
-            cum_bayes_ucb_opt_reward += bayes_ucb_learn.get_best_arm_approx()
+            cum_th_opt_reward += th_learn.get_best_arm_approx()
 
             #regret of the eps_greedy learner
             eps_regrets[n][t] = cum_eps_opt_reward - eps_cum_reward
@@ -378,8 +358,8 @@ if __name__ == '__main__':
             ucb_regrets[n][t] = cum_ucb_opt_reward - ucb_cum_reward
             #regret of the bayes_ucb learner
             bayes_ucb_regrets[n][t] = cum_bayes_ucb_opt_reward - bayes_ucb_cum_reward
-            #regret of the bayes_ucb learner
-            bayes_ucb_regrets[n][t] = cum_bayes_ucb_opt_reward - bayes_ucb_cum_reward
+            #regret of the th learner
+            th_regrets[n][t] = cum_th_opt_reward - th_cum_reward
 
             #reward of the eps_greedy learner
             eps_rewards[n][t] = cum_eps_opt_reward - eps_cum_reward
@@ -387,64 +367,59 @@ if __name__ == '__main__':
             ucb_rewards[n][t] = cum_ucb_opt_reward - ucb_cum_reward
             #reward of the bayes_ucb learner
             bayes_ucb_rewards[n][t] = cum_bayes_ucb_opt_reward - bayes_ucb_cum_reward
-            #reward of the bayes_ucb learner
-            bayes_ucb_rewards[n][t] = cum_bayes_ucb_opt_reward - bayes_ucb_cum_reward
+            #reward of the th learner
+            th_rewards[n][t] = cum_th_opt_reward - th_cum_reward
         
     
     #compute the mean regret of the eps greedy and ucb learner and bayes_ucb
     eps_mean_regrets = {t:0 for t in range(T)}
     ucb_mean_regrets = {t:0 for t in range(T)}
     bayes_ucb_mean_regrets = {t:0 for t in range(T)}
+    th_mean_regrets = {t:0 for t in range(T)}
 
-    #compute the mean reward of the eps greedy and ucb learner and bayes_ucb
+    #compute the mean reward of the eps greedy and ucb learner and th
     eps_mean_rewards = {t:0 for t in range(T)}
     ucb_mean_rewards = {t:0 for t in range(T)}
     bayes_ucb_mean_rewards = {t:0 for t in range(T)}
+    th_mean_rewards = {t:0 for t in range(T)}
     for t in range(T):
         eps_mean_regrets[t] = sum(eps_regrets[n][t] for n in range(N))/N
         ucb_mean_regrets[t] = sum(ucb_regrets[n][t] for n in range(N))/N
         bayes_ucb_mean_regrets[t] = sum(bayes_ucb_regrets[n][t] for n in range(N))/N
-        bayes_ucb_mean_regrets[t] = sum(bayes_ucb_regrets[n][t] for n in range(N))/N
+        th_mean_regrets[t] = sum(th_regrets[n][t] for n in range(N))/N
 
         # reward 
         eps_mean_rewards[t] = sum(eps_rewards[n][t] for n in range(N))/N
         ucb_mean_rewards[t] = sum(ucb_rewards[n][t] for n in range(N))/N
         bayes_ucb_mean_rewards[t] = sum(bayes_ucb_rewards[n][t] for n in range(N))/N
-        bayes_ucb_mean_rewards[t] = sum(bayes_ucb_rewards[n][t] for n in range(N))/N
+        th_mean_rewards[t] = sum(th_rewards[n][t] for n in range(N))/N
 
 
-    dict_results =  {'Bandit':[],'Auction':[], 'Time (s)':[], 'T':[], 'k': [], "Revenue":[], "armset": []}
-    for key in dict_armset.keys():
-        arms_set = dict_armset[key]
-        prior = dict_distributions[key]
-        for k in listk:
-            
-            print("Auction: ",auction)
-            print("k: ",k)
-            print("armset: ", key)
-            ##################         UCB           ##################
+    dict_results =  {'Bandit':[], 'T':[], "AVG reward": [], "Last reward":[]}
 
-            snm_ucb=SocNetMec_UCB(G=G, T=T, k=k, auctions=auctions, arms_set=arms_set, auction=auction)
-            ucb_revenue = 0
-            opt_ucb_reward = 0
-            regrets_ucb = {}
+    dict_results["Bandit"].append("UCB")
+    dict_results["T"].append(T)
+    dict_results["AVG reward"].append(np.mean(list(ucb_mean_rewards.values())))
+    dict_results["Last reward"].append(ucb_mean_rewards[T-1])
 
-            print("UCB: \n")
-            tic = time.time()
-            for step in tqdm(range(T)):
-                ucb_revenue += snm_ucb.run(step, prob, valf)
-                opt_ucb_reward += snm_ucb.get_best_arm_approx()
-                regrets_ucb[step] = opt_ucb_reward - ucb_revenue
-            toc = time.time()
-            exe_time_ucb = round(toc - tic, 3)
+    dict_results["Bandit"].append("EPS")
+    dict_results["T"].append(T)
+    dict_results["AVG reward"].append(np.mean(list(eps_mean_rewards.values())))
+    dict_results["Last reward"].append(eps_mean_rewards[T-1])
 
-            dict_results["Bandit"].append("UCB")
-            dict_results["Auction"].append(auction)
-            dict_results["Time (s)"].append(exe_time_ucb)
-            dict_results["T"].append(T)
-            dict_results["k"].append(k)
-            dict_results["Revenue"].append(ucb_revenue)
-            dict_results["armset"].append(key)
+    dict_results["Bandit"].append("Bayes UCB")
+    dict_results["T"].append(T)
+    dict_results["AVG reward"].append(np.mean(list(bayes_ucb_mean_rewards.values())))
+    dict_results["Last reward"].append(bayes_ucb_mean_rewards[T-1])
+
+    dict_results["Bandit"].append("Thompson")
+    dict_results["T"].append(T)
+    dict_results["AVG reward"].append(np.mean(list(th_mean_rewards.values())))
+    dict_results["Last reward"].append(th_mean_rewards[T-1])
+
+    df1 = pd.DataFrame(dict_results)
+    path = "final_results_UCB_GIDM/"+str(T)
+    df1.to_csv(file_name, index=False)
 
 
     #VISUALIZATION OF RESULTS
@@ -486,11 +461,11 @@ if __name__ == '__main__':
     ax3.set_ylabel('E[R(t)]')
     ax3.legend()
 
-    #Plot ucb regret against eps-greedy and bayes_ucb regret
+    #Plot ucb regret against eps-greedy and th regret
     ax4.plot(range(1,T+1), eps_mean_regrets.values(), label = 'eps_mean_regret')
     ax4.plot(range(1,T+1), ucb_mean_regrets.values(), label = 'ucb_mean_regret')
     ax4.plot(range(1,T+1), bayes_ucb_mean_regrets.values(), label = 'bayes_ucb_mean_regret')
-    ax4.plot(range(1,T+1), bayes_ucb_mean_regrets.values(), label = 'bayes_ucb_mean_regret')
+    ax4.plot(range(1,T+1), th_mean_regrets.values(), label = 'th_mean_regret')
     ax4.set_xlabel('t')
     ax4.set_ylabel('E[R(t)]')
     ax4.legend()

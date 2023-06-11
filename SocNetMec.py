@@ -7,14 +7,15 @@ import numpy as np
 class SocNetMec_UCB:
     
     def __init__(self, G, T, k, auctions, arms_set, auction):
-        self.G = G
-        self.T = T
-        self.k = k
-        self.auctions = auctions
-        self._type_auction = auction
+        self.G = G # a undirected Graph
+        self.T = T # Time Horizon
+        self.k = k # number of items to sell
+        self.auctions = auctions # dict of auctions
+        self._type_auction = auction # the type of auction to use
 
         self.__arms_set = arms_set #initialize the set of arms
         self.__t = 0
+        
         # Next initialization will serve for computing the best strategy during exploitation steps
         self.__num = {a:0 for a in self.__arms_set} #It saves the number of times arm a has been selected
         self.__rew = {a:0 for a in self.__arms_set} #It saves the cumulative reward achieved by arm a when selected
@@ -23,18 +24,22 @@ class SocNetMec_UCB:
         #It saves the ucb value of each arm until the current time step
         #It is initialised to infinity in order to allow that each arm is selected at least once
         self.__ucb = {a:float('inf') for a in self.__arms_set}
-        self.__n_nodes = []
 
-    def get_n(self):
-        return self.__n_nodes
     
     def __init(self, t):
+        """
+        This methos takes in input the time step t, and returns a node u of G, and a function auction.
+        """
         self.__t = t
         a_t = max(self.__ucb, key=self.__ucb.get)  #We choose the arm that has the highest average revenue
         auction_t = self.auctions[self._type_auction]
         return a_t, auction_t
 
     def __invite(self, t, u, v, auction, prob, val):
+        """This method that takes in input the time step t, a pair of nodes u (the inviting node) and v (the invited node),
+        an auction format, an edge probability oracle prob (i.e., a function that takes in input a pair of nodes u, v. returns True with probability puv and False with remaining probability)
+        and a valuation oracle val (i.e., a function that takes in input a time step t, and a node v.
+         It return the valuation of v for the item at the time step t"""
         if prob(u,v):
           bv = val(t,v)
           sv = self.G[v]
@@ -56,13 +61,19 @@ class SocNetMec_UCB:
         
     def __receive_reward(self, arm, auction, prob, val):
         """
-        It select the reward for the given arm equal to the number of nodes in the graph
-        that are reachable from the selected vertex x (the arm) only through alive edges
+        It select the reward for the given arm equal to the reward obtenied by the seller (the arm)
 
         Parameters
         ----------
         arm:
             the arm (vertex) that the learner want to use
+        auction:
+            the auction format used
+        prob: 
+            the edge probability oracle (i.e., a function that takes in input a pair of nodes u, v, and returns True with probability puv and False with remaining probability)
+        val:
+            the valuation oracle (i.e., a function that takes in input a time step t, and a node v and return the valuation of v for the item at the time step t)
+
 
         Returns
         ---------
@@ -96,42 +107,27 @@ class SocNetMec_UCB:
                               else:
                                   reports[c] = [v]
             clevel = nlevel
-        """print("seller net:")
-        print(seller_net)
-        print("reports:")
-        print(reports)
-        print("bids:")
-        print(bids)"""
+        
         if len(seller_net)>0:
-            """G1 = nx.DiGraph()
-
-            # costruzione del grafo
-            for bidder in seller_net:
-                G1.add_edge('seller', bidder)
-
-            for key in reports.keys():
-                for value in reports[key]:
-                    G1.add_edge(key, value)
-            n_nodes = G1.number_of_nodes()-1"""
+            
             allocation, payments = auction[2](self.k, seller_net, reports, bids)
             reward = sum(payments.values())
         else:
             #n_nodes = 0
             reward = 0
-        #self.__n_nodes.append(n_nodes)
-        """print("payments:")
-        print(payments)
-        print("allocation:")
-        print(allocation)"""
         return reward
     
 
     def run(self, t, prob, val):
+        """ that takes in input the time step t, the edge probability oracle prob and the
+        valuation oracle val. The function invokes init(t) to choose the seed node s and the auction format.
+        Finally, it invites nodes as described above by using the function invite(t, u, v, auction, prob, val).
+        As soon as there is no further node to invite, the function computes the allocation and payments through the auction function returned by init, and returns the total revenue for the seller """
         t+=1
         a_t, auction_t = self.__init(t)
-        ##print("Selected arm at time ", t, " : ",a_t)
+        
         reward = self.__receive_reward(a_t, auction_t, prob, val) #We save the reward assigned by the environment
-        ##print("recived reward: ", reward)
+        
         # We update the number of times arm a_t has been chosen, its cumulative reward and its UCB value
         self.__num[a_t] += 1
         self.__rew[a_t] += reward
@@ -241,29 +237,21 @@ class SocNetMec_TH:
                               else:
                                   reports[c] = [v]
             clevel = nlevel
-        """print("seller net:")
-        print(seller_net)
-        print("reports:")
-        print(reports)
-        print("bids:")
-        print(bids)"""
+        
         if len(seller_net)>0:
             allocation, payments = auction[2](self.k, seller_net, reports, bids)
             reward = sum(payments.values())
         else:
             reward = 0
-        """print("payments:")
-        print(payments)
-        print("allocation:")
-        print(allocation)"""
+        
         return reward
     
 
     def run(self, t, prob, val):
         a_t, auction_t = self.__init(t)
-        #print("Selected arm at time ", t, " : ",a_t)
+        
         reward = self.__receive_reward(a_t, auction_t, prob, val) #We save the reward assigned by the environment
-        #print("recived reward: ", reward)
+        
         # We update the number of times arm a_t has been chosen, its cumulative reward and its UCB value
         self.__num[a_t] += 1
         self.__rew[a_t] += reward
@@ -370,29 +358,21 @@ class SocNetMec_EPS:
                               else:
                                   reports[c] = [v]
             clevel = nlevel
-        """print("seller net:")
-        print(seller_net)
-        print("reports:")
-        print(reports)
-        print("bids:")
-        print(bids)"""
+        
         if len(seller_net)>0:
             allocation, payments = auction[2](self.k, seller_net, reports, bids)
             reward = sum(payments.values())
         else:
             reward = 0
-        """print("payments:")
-        print(payments)
-        print("allocation:")
-        print(allocation)"""
+        
         return reward
     
 
     def run(self, t, prob, val):
         a_t, auction_t = self.__init(t)
-        #print("Selected arm at time ", t, " : ",a_t)
+        
         reward = self.__receive_reward(a_t, auction_t, prob, val) #We save the reward assigned by the environment
-        #print("recived reward: ", reward)
+        
         # We update the number of times arm a_t has been chosen, its cumulative reward and its UCB value
         self.__num[a_t] += 1
         self.__rew[a_t] += reward
@@ -490,42 +470,20 @@ class SocNetMec_UCB_mixed:
                               else:
                                   reports[c] = [v]
             clevel = nlevel
-        """print("seller net:")
-        print(seller_net)
-        print("reports:")
-        print(reports)
-        print("bids:")
-        print(bids)"""
+        
         if len(seller_net)>0:
-            """G1 = nx.DiGraph()
-
-            # costruzione del grafo
-            for bidder in seller_net:
-                G1.add_edge('seller', bidder)
-
-            for key in reports.keys():
-                for value in reports[key]:
-                    G1.add_edge(key, value)
-            n_nodes = G1.number_of_nodes()-1"""
             allocation, payments = auction[2](self.k, seller_net, reports, bids)
             reward = sum(payments.values())
         else:
-            #n_nodes = 0
             reward = 0
-        #self.__n_nodes.append(n_nodes)
-        """print("payments:")
-        print(payments)
-        print("allocation:")
-        print(allocation)"""
         return reward
     
 
     def run(self, t, prob, val):
         t+=1
         a_t, auction_t = self.__init(t)
-        #print("Selected arm at time ", t, " : ",a_t)
         reward = self.__receive_reward(a_t, auction_t, prob, val) #We save the reward assigned by the environment
-        #print("recived reward: ", reward)
+
         # We update the number of times arm a_t has been chosen, its cumulative reward and its UCB value
         self.__num[a_t] += 1
         self.__rew[a_t] += reward
@@ -555,15 +513,12 @@ class SocNetMec_Bayesian_UCB:
         #It is initialised to infinity in order to allow that each arm is selected at least once
         self.__ucb = {a:float('inf') for a in self.__arms_set}
         self.__ucb_scale = 1.96
-        #self.__n_nodes = []
 
         if gaussian_dist is not None:
             self.__gaussian_dist = gaussian_dist
         else:
             self.__gaussian_dist = {a:(0,1) for a in arms_set}  
 
-    """def get_n(self):
-        return self.__n_nodes"""
     def __init(self, t):
         self.__t = t
         a_t = max(self.__ucb, key=self.__ucb.get)  #We choose the arm that has the highest average revenue
@@ -632,42 +587,20 @@ class SocNetMec_Bayesian_UCB:
                               else:
                                   reports[c] = [v]
             clevel = nlevel
-        """print("seller net:")
-        print(seller_net)
-        print("reports:")
-        print(reports)
-        print("bids:")
-        print(bids)"""
         if len(seller_net)>0:
-            """G1 = nx.DiGraph()
-
-            # costruzione del grafo
-            for bidder in seller_net:
-                G1.add_edge('seller', bidder)
-
-            for key in reports.keys():
-                for value in reports[key]:
-                    G1.add_edge(key, value)
-            n_nodes = G1.number_of_nodes()-1"""
             allocation, payments = auction[2](self.k, seller_net, reports, bids)
             reward = sum(payments.values())
         else:
-            #n_nodes = 0
             reward = 0
-        #self.__n_nodes.append(n_nodes)
-        """print("payments:")
-        print(payments)
-        print("allocation:")
-        print(allocation)"""
         return reward
     
 
     def run(self, t, prob, val):
         t+=1
         a_t, auction_t = self.__init(t)
-        #print("Selected arm at time ", t, " : ",a_t)
+        
         reward = self.__receive_reward(a_t, auction_t, prob, val) #We save the reward assigned by the environment
-        #print("recived reward: ", reward)
+        
         # We update the number of times arm a_t has been chosen, its cumulative reward and its UCB value
         self.__num[a_t] += 1
         self.__rew[a_t] += reward
@@ -712,8 +645,7 @@ class SocNetMec_UCB_mean:
         self.__ucb = {a:float('inf') for a in self.__arms_set}
         #self.__n_nodes = []
 
-    """def get_n(self):
-        return self.__n_nodes"""
+    
     def __init(self, t):
         self.__t = t
         a_t = max(self.__ucb, key=self.__ucb.get)  #We choose the arm that has the highest average revenue
@@ -782,42 +714,20 @@ class SocNetMec_UCB_mean:
                               else:
                                   reports[c] = [v]
             clevel = nlevel
-        """print("seller net:")
-        print(seller_net)
-        print("reports:")
-        print(reports)
-        print("bids:")
-        print(bids)"""
-        if len(seller_net)>0:
-            """G1 = nx.DiGraph()
-
-            # costruzione del grafo
-            for bidder in seller_net:
-                G1.add_edge('seller', bidder)
-
-            for key in reports.keys():
-                for value in reports[key]:
-                    G1.add_edge(key, value)
-            n_nodes = G1.number_of_nodes()-1"""
+        if len(seller_net)>0:       
             allocation, payments = auction[2](self.k, seller_net, reports, bids)
             reward = sum(payments.values())
         else:
-            #n_nodes = 0
             reward = 0
-        #self.__n_nodes.append(n_nodes)
-        """print("payments:")
-        print(payments)
-        print("allocation:")
-        print(allocation)"""
         return reward
     
 
     def run(self, t, prob, val):
         t+=1
         a_t, auction_t = self.__init(t)
-        ##print("Selected arm at time ", t, " : ",a_t)
+        
         reward = self.__receive_reward(a_t, auction_t, prob, val) #We save the reward assigned by the environment
-        ##print("recived reward: ", reward)
+        
         # We update the number of times arm a_t has been chosen, its cumulative reward and its UCB value
         self.__num[a_t] += 1
         self.__rew[a_t] += reward

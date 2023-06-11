@@ -1,0 +1,10 @@
+Network,Directed,Nodes,Edges,Algorithm,Time (s),Triangles
+musae_facebook_edges,False,22470,171002,Standard,10.967,794953.0
+musae_facebook_edges,False,22470,171002,Parallel standard,11.278,794953.0
+musae_facebook_edges,False,22470,171002,Optimized,19.614,794953.0
+musae_facebook_edges,False,22470,171002,Networkx,3.393,794953.0
+musae_facebook_edges,False,22470,171002,nodeIteratorPlusPlus,2.46,794953.0
+musae_facebook_edges,False,22470,171002,nodeIteratorN,0.448,794953.0
+musae_facebook_edges,False,22470,171002,parallel_nodeIteratorN,0.502,794953.0
+twitter_combined,True,81306,1768149,Standard,86.274,6936972.0
+twitter_combined,True,81306,1768149,Parallel standard,94.046,6936971.999999999
