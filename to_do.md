@@ -1,3 +1,4 @@
+
 # Task1
 
 - diametro (Trova opt. e.g. Algoritmo: fai la bfs da un nodo e arriva al nodo più lontwanto e fai la bfs da quel nodo il diametro è la somma dei due)
