@@ -131,7 +131,7 @@ class UCB_Learner:
         self.__num[a_t] += 1
         self.__rew[a_t] += reward
         self.__avgrew[a_t] = self.__rew[a_t]/self.__num[a_t]
-        print("T: ", self.__t)
+        #print("T: ", self.__t)
         self.__ucb[a_t] = self.__avgrew[a_t] + math.sqrt(2*math.log(self.__t)/self.__num[a_t])
         self.__t += 1
 
@@ -236,7 +236,7 @@ if __name__ == '__main__':
     parser.add_argument('--directed', help='type of Graph', type=bool, default=False)
     parser.add_argument('--T', help='Time Horizon', type=int, default=10)
     parser.add_argument('--N', help='number of simulations', type=int, default=1)
-    parser.add_argument('--file_name', help='noem file di testo su cui salvare i risultati', type=str, default="centrality.txt")
+    parser.add_argument('--file_name', help='noem file di testo su cui salvare i risultati', type=str, default="results.csv")
     
     args = parser.parse_args()
 
@@ -307,18 +307,17 @@ if __name__ == '__main__':
     
     eps_regrets = {n: {t: 0 for t in range(T)} for n in range(N)} #regret matrix for the eps-greedy learner
     ucb_regrets = {n: {t: 0 for t in range(T)} for n in range(N)} #regret matrix for the UCB learner
-    thompson_regrets = {n: {t: 0 for t in range(T)} for n in range(N)} #regret matrix for the thompson learner
+    bayes_ucb_regrets = {n: {t: 0 for t in range(T)} for n in range(N)} #regret matrix for bayes UCB learner
+    bayes_ucb_regrets = {n: {t: 0 for t in range(T)} for n in range(N)} #regret matrix for bayes UCB learner
+
+    eps_rewards = {n: {t: 0 for t in range(T)} for n in range(N)} #reward matrix for the eps-greedy learner
+    ucb_rewards = {n: {t: 0 for t in range(T)} for n in range(N)} #reward matrix for the UCB learner
+    bayes_ucb_rewards = {n: {t: 0 for t in range(T)} for n in range(N)} #reward matrix for bayes UCB learner
+    bayes_ucb_rewards = {n: {t: 0 for t in range(T)} for n in range(N)} #reward matrix for bayes UCB learner
 
 
     #INITIALIZATION FOR EPS-GREEDY
-    """
-    A common choice for eps_t = (K log t/t)^1/3
-
-    # FOR UNKNOWN TIME HORIZON COMMENT THE FOLLOWING LINES
-    eps = [1] #for the first step we cannot make exploitation, so eps_1 = 1
-    eps.extend((len(arms_set)*math.log(t)/t)**(1/3) for t in range(2,T+1))
-    #FOR UNKNOWN TIME HORIZON UNCOMMENT THE FOLLOWING LINES
-    """
+    
     def give_eps(t):
        if t == 0:
            return 1  #for the first step we cannot make exploitation, so eps_1 = 1
@@ -330,24 +329,24 @@ if __name__ == '__main__':
     for n in tqdm(range(N)):
         ucb_cum_reward = 0 #it saves the cumulative reward of the UCB learner
         eps_cum_reward = 0 #it saves the cumulative reward of the eps-greedy learner
-        thompson_cum_reward = 0 #it saves the cumulative reward of the thompson learner 
+        bayes_ucb_cum_reward = 0 #it saves the cumulative reward of the bayes_ucb learner 
+        bayes_ucb_cum_reward = 0 #it saves the cumulative reward of the bayes_ucb learner 
 
         cum_ucb_opt_reward = 0 #it saves the cumulative reward of the UCB learner best-arm in hindsight
         cum_eps_opt_reward = 0 #it saves the cumulative reward of the eps-greedy learner best-arm in hindsight
-        cum_thompson_opt_reward = 0 #it saves the cumulative reward of the eps-greedy learner best-arm in hindsight
+        cum_bayes_ucb_opt_reward = 0 #it saves the cumulative reward of the bayes ucb learner best-arm in hindsight
+        cum_bayes_ucb_opt_reward = 0 #it saves the cumulative reward of the bayes ucb learner best-arm in hindsight
 
-        dict_count_best_arm_eps = {a:0 for a in arms_set}
-        dict_count_best_arm_ucb = {a:0 for a in arms_set}
-        dict_count_best_arm_thompson = {a:0 for a in arms_set}
         #Environment
         env = Social_Environment(G,prob_dict)
         #Eps-Greedy Learner
-        eps_learn = EpsGreedy_Learner(arms_set, env, eps) #COMMENT FOR UNKNOWN TIME HORIZON
-        #eps_learn = EpsGreedy_Learner(arms_set, env, eps) #UNCOMMENT FOR UNKNOWN TIME HORIZON
+        eps_learn = EpsGreedy_Learner(arms_set, env, eps) 
         #UCB Learner
-        ucb_learn = UCB_Learner(arms_set, env)  #COMMENT FOR UNKNOWN TIME HORIZON
-        #ucb_learn = UCB_Learner(arms_set, env)  #UNCOMMENT FOR UNKNOWN TIME HORIZON
-        thompson_learn = Thompson_Learner(arms_set, env)  #COMMENT FOR UNKNOWN TIME HORIZON
+        ucb_learn = UCB_Learner(arms_set, env)  
+        #Bayes UCB Learner
+        bayes_ucb_learn = Bayes_UCB_Learner(arms_set, env)  
+        #Bayes UCB Learner
+        bayes_ucb_learn = Thompson_Learner(arms_set, env)  
 
         for t in tqdm(range(T)):
             
@@ -355,62 +354,98 @@ if __name__ == '__main__':
             print(t)
             a, reward = eps_learn.play_arm()
             eps_cum_reward += reward
-            a_eps = a
-            dict_count_best_arm_eps[a] += 1
 
             # reward obtained by the ucb learner
             a, reward = ucb_learn.play_arm()
             ucb_cum_reward += reward
-            a_ucb = a
-            dict_count_best_arm_ucb[a] += 1
 
-            # reward obtained by the thompson learner
-            a, reward = thompson_learn.play_arm()
-            thompson_cum_reward += reward
-            a_thompson = a
-            dict_count_best_arm_thompson[a] += 1
+            # reward obtained by the bayes_ucb learner
+            a, reward = bayes_ucb_learn.play_arm()
+            bayes_ucb_cum_reward += reward
+
+            # reward obtained by the bayes_ucb learner
+            a, reward = bayes_ucb_learn.play_arm()
+            bayes_ucb_cum_reward += reward
 
             cum_eps_opt_reward += eps_learn.get_best_arm_approx()
             cum_ucb_opt_reward += ucb_learn.get_best_arm_approx()
-            cum_thompson_opt_reward += thompson_learn.get_best_arm_approx()
-            """opt_a_eps = eps_learn.get_best_arm_approx()
-            opt_a_ucb = ucb_learn.get_best_arm_approx()
-            opt_a_thompson = thompson_learn.get_best_arm_approx()
-
-
-            #reward obtained by the optimal arm for eps-greedy
-            cum_eps_opt_reward += env.receive_reward(opt_a_eps)
-
-            #reward obtained by the optimal arm for ucb
-            cum_ucb_opt_reward += env.receive_reward(opt_a_ucb)
-
-            #reward obtained by the optimal arm for thompson
-            cum_thompson_opt_reward += env.receive_reward(opt_a_thompson)"""
+            cum_bayes_ucb_opt_reward += bayes_ucb_learn.get_best_arm_approx()
+            cum_bayes_ucb_opt_reward += bayes_ucb_learn.get_best_arm_approx()
 
             #regret of the eps_greedy learner
             eps_regrets[n][t] = cum_eps_opt_reward - eps_cum_reward
             #regret of the ucb learner
             ucb_regrets[n][t] = cum_ucb_opt_reward - ucb_cum_reward
-            #regret of the thompson learner
-            thompson_regrets[n][t] = cum_thompson_opt_reward - thompson_cum_reward
+            #regret of the bayes_ucb learner
+            bayes_ucb_regrets[n][t] = cum_bayes_ucb_opt_reward - bayes_ucb_cum_reward
+            #regret of the bayes_ucb learner
+            bayes_ucb_regrets[n][t] = cum_bayes_ucb_opt_reward - bayes_ucb_cum_reward
+
+            #reward of the eps_greedy learner
+            eps_rewards[n][t] = cum_eps_opt_reward - eps_cum_reward
+            #reward of the ucb learner
+            ucb_rewards[n][t] = cum_ucb_opt_reward - ucb_cum_reward
+            #reward of the bayes_ucb learner
+            bayes_ucb_rewards[n][t] = cum_bayes_ucb_opt_reward - bayes_ucb_cum_reward
+            #reward of the bayes_ucb learner
+            bayes_ucb_rewards[n][t] = cum_bayes_ucb_opt_reward - bayes_ucb_cum_reward
         
-        print("PROVA ", n," :")
-        print("eps-greedy: ",a_eps,env.receive_reward(a_eps))
-        print(dict(sorted(dict_count_best_arm_eps.items(), key=itemgetter(1), reverse=True)[:5]))
-        print("UCB1: ",a_ucb,env.receive_reward(a_ucb))
-        print(dict(sorted(dict_count_best_arm_ucb.items(), key=itemgetter(1), reverse=True)[:5]))
-        print("thompson: ",a_thompson,env.receive_reward(a_thompson))
-        print(dict(sorted(dict_count_best_arm_thompson.items(), key=itemgetter(1), reverse=True)[:5]))
-        print("\n\n----------------------\n\n")
     
-    #compute the mean regret of the eps greedy and ucb learner and thompson
+    #compute the mean regret of the eps greedy and ucb learner and bayes_ucb
     eps_mean_regrets = {t:0 for t in range(T)}
     ucb_mean_regrets = {t:0 for t in range(T)}
-    thompson_mean_regrets = {t:0 for t in range(T)}
+    bayes_ucb_mean_regrets = {t:0 for t in range(T)}
+
+    #compute the mean reward of the eps greedy and ucb learner and bayes_ucb
+    eps_mean_rewards = {t:0 for t in range(T)}
+    ucb_mean_rewards = {t:0 for t in range(T)}
+    bayes_ucb_mean_rewards = {t:0 for t in range(T)}
     for t in range(T):
         eps_mean_regrets[t] = sum(eps_regrets[n][t] for n in range(N))/N
         ucb_mean_regrets[t] = sum(ucb_regrets[n][t] for n in range(N))/N
-        thompson_mean_regrets[t] = sum(thompson_regrets[n][t] for n in range(N))/N
+        bayes_ucb_mean_regrets[t] = sum(bayes_ucb_regrets[n][t] for n in range(N))/N
+        bayes_ucb_mean_regrets[t] = sum(bayes_ucb_regrets[n][t] for n in range(N))/N
+
+        # reward 
+        eps_mean_rewards[t] = sum(eps_rewards[n][t] for n in range(N))/N
+        ucb_mean_rewards[t] = sum(ucb_rewards[n][t] for n in range(N))/N
+        bayes_ucb_mean_rewards[t] = sum(bayes_ucb_rewards[n][t] for n in range(N))/N
+        bayes_ucb_mean_rewards[t] = sum(bayes_ucb_rewards[n][t] for n in range(N))/N
+
+
+    dict_results =  {'Bandit':[],'Auction':[], 'Time (s)':[], 'T':[], 'k': [], "Revenue":[], "armset": []}
+    for key in dict_armset.keys():
+        arms_set = dict_armset[key]
+        prior = dict_distributions[key]
+        for k in listk:
+            
+            print("Auction: ",auction)
+            print("k: ",k)
+            print("armset: ", key)
+            ##################         UCB           ##################
+
+            snm_ucb=SocNetMec_UCB(G=G, T=T, k=k, auctions=auctions, arms_set=arms_set, auction=auction)
+            ucb_revenue = 0
+            opt_ucb_reward = 0
+            regrets_ucb = {}
+
+            print("UCB: \n")
+            tic = time.time()
+            for step in tqdm(range(T)):
+                ucb_revenue += snm_ucb.run(step, prob, valf)
+                opt_ucb_reward += snm_ucb.get_best_arm_approx()
+                regrets_ucb[step] = opt_ucb_reward - ucb_revenue
+            toc = time.time()
+            exe_time_ucb = round(toc - tic, 3)
+
+            dict_results["Bandit"].append("UCB")
+            dict_results["Auction"].append(auction)
+            dict_results["Time (s)"].append(exe_time_ucb)
+            dict_results["T"].append(T)
+            dict_results["k"].append(k)
+            dict_results["Revenue"].append(ucb_revenue)
+            dict_results["armset"].append(key)
+
 
     #VISUALIZATION OF RESULTS
     #compute t^2/3 (c K log t)^1/3
@@ -424,9 +459,9 @@ if __name__ == '__main__':
         ref_ucb.append(math.sqrt(len(arms_set)*t*math.log(T)))
     
     #compute c*sqrt(KtlogT)
-    ref_thompson = list()
+    ref_bayes_ucb = list()
     for t in range(1, T+1):
-        ref_thompson.append(math.sqrt(len(arms_set)*t*math.log(T)))
+        ref_bayes_ucb.append(math.sqrt(len(arms_set)*t*math.log(T)))
 
     fig, (ax1, ax2, ax3, ax4) = plt.subplots(4)
     fig.suptitle(s, fontsize=10)
@@ -444,19 +479,20 @@ if __name__ == '__main__':
     ax2.set_ylabel('E[R(t)]')
     ax2.legend()
 
-    #Plot thompson regret against its reference value
-    ax3.plot(range(1,T+1), thompson_mean_regrets.values(), label = 'thompson_mean_regret')
-    ax3.plot(range(1,T+1), ref_thompson, label = f'sqrt(K*T*logT)')
+    #Plot bayes_ucb regret against its reference value
+    ax3.plot(range(1,T+1), bayes_ucb_mean_regrets.values(), label = 'bayes_ucb_mean_regret')
+    ax3.plot(range(1,T+1), ref_bayes_ucb, label = f'sqrt(K*t*logT)')
     ax3.set_xlabel('t')
     ax3.set_ylabel('E[R(t)]')
     ax3.legend()
 
-    #Plot ucb regret against eps-greedy and thompson regret
+    #Plot ucb regret against eps-greedy and bayes_ucb regret
     ax4.plot(range(1,T+1), eps_mean_regrets.values(), label = 'eps_mean_regret')
     ax4.plot(range(1,T+1), ucb_mean_regrets.values(), label = 'ucb_mean_regret')
-    ax4.plot(range(1,T+1), thompson_mean_regrets.values(), label = 'thompson_mean_regret')
+    ax4.plot(range(1,T+1), bayes_ucb_mean_regrets.values(), label = 'bayes_ucb_mean_regret')
+    ax4.plot(range(1,T+1), bayes_ucb_mean_regrets.values(), label = 'bayes_ucb_mean_regret')
     ax4.set_xlabel('t')
     ax4.set_ylabel('E[R(t)]')
     ax4.legend()
 
-    plt.show()
+    plt.savefig('results.png')
