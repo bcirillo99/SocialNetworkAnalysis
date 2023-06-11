@@ -1,5 +1,4 @@
-python3 final_test_armset2_20000_1.py
-python3 final_test_armset2_40000.py
-python3 final_test_armset2_40000_2.py
-python3 final_test_armset2_80000.py
-python3 final_test_armset2_80000_2.py
+python3 final_test_armset_UCB.py --T 40000
+python3 final_test_armset_UCB.py --T 40000
+python3 final_test_armset_UCB.py --T 60000
+python3 final_test_armset_UCB.py --T 80000

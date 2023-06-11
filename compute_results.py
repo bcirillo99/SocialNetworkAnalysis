@@ -3,10 +3,10 @@ import pandas as pd
 
 
 
-#df_mudan = pd.read_csv("final_results_prior2/20000/MUDAN_1.csv")
-df_mudar = pd.read_csv("final_results_prior2/20000/MUDAR_1.csv")
-#df_vcg = pd.read_csv("final_results/20000/VCG_1.csv")
-#df_gidm = pd.read_csv("final_results_prior2/20000/GIDM_1.csv")
+#df_mudan = pd.read_csv("final_results_prior2/80000/MUDAN.csv")
+df_mudar = pd.read_csv("final_results_prior2/80000/MUDAR.csv")
+#df_vcg = pd.read_csv("final_results/80000/VCG.csv")
+#df_gidm = pd.read_csv("final_results_prior2/80000/GIDM.csv")
 
 """df_mudan = df.loc[df['Auction'] == "MUDAN"].reset_index(drop=True)
 df_mudar = df.loc[df['Auction'] == "MUDAR"].reset_index(drop=True)
@@ -29,11 +29,11 @@ for k in listk:
 
 final_results = pd.concat(results).reset_index(drop=True)
 print(final_results)
-path = "final_results_prior2/20000/results_1/"
+path = "final_results_prior2/80000/results/"
         
 if not os.path.exists(path):
     os.makedirs(path)
-final_results.to_csv(path+"basic_auction_best_results_1.csv")
+final_results.to_csv(path+"basic_auction_best_results.csv")
 
 results = []
 for k in listk:
@@ -42,4 +42,4 @@ for k in listk:
 
 final_results = pd.concat(results).reset_index(drop=True)
 print(final_results)
-final_results.to_csv(path+"basic_best_results_1.csv")
+final_results.to_csv(path+"basic_best_results.csv")
