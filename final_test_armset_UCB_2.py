@@ -275,6 +275,8 @@ for auction in list_auction:
             print("total revenue: ", ucb_revenue)
             print()
 
+            
+
             df1 = pd.DataFrame(dict_results, columns=['Bandit','Auction', 'Time (s)', 'T', 'k', 'Revenue','armset'])
             path = "final_results_UCB_2/"+str(T)
         

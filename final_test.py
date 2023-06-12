@@ -1,3 +1,4 @@
+from argparse import ArgumentParser
 import os
 import sys
 
@@ -29,27 +30,23 @@ from task2.voterank import voterank
 from task2.shapley import shapley_closeness,shapley_degree,shapley_threshold, positive_decr_fun
 from tqdm import tqdm
 
-def input_data(path_net=None):
-    n = 100
-    r = 2.7
+def input_data():
+    n = 20000
+    r = 2.71
     kw = 1
     q = 4
-    #G = GenWS2DG(n,r,kw,q) #This will be updated to the network model of net_x
-    if path_net is not None:
-        G = create_graph_from_txt(path_net, sep=' ', directed=False)
-    else:
-        G = create_graph_from_txt('data/net_4.txt', sep=' ', directed=False)
-    #G = randomG(n,p=0.3)
+    
+    G = GenWS2DG(n,r,kw,q) #This will be updated to the network model of net_x "Rete generata con watts-strogatz"
+        
     n_nodes = G.number_of_nodes()
-    k = math.floor(random.uniform(0.001*n_nodes, 0.05*n_nodes))
-    k = 20
-    T = 80000 # tra 20000 e 200000
 
-    arms_set = [v for v in G.nodes()]
-    """
+    k = math.floor(random.uniform(0.001*n_nodes, 0.05*n_nodes))
+    T = random.randint(20000, 200000)
+
+    
     cen = pageRank(G)
-    arms_set = list(top(G,cen,200).keys())
-    """
+    arms_set = list(top(G,cen,200).keys()) # come armset scegliamo di utilizzare i top 200 nodi con la misura di centralità più alta
+    
 
     # Is a dictonary with whose keys are strings representing the different type of auctions and whose 
     # value is a list: truthful bidding, truthful reporting, function 
@@ -59,6 +56,8 @@ def input_data(path_net=None):
     auctions["VCG"] = [True, True, auction]
     auctions["GIDM"] = [True, True, GIDM]
 
+    auction="GIDM"
+
     #for the oracle val
     print("Val oracle: ")
     val = dict()
@@ -66,7 +65,6 @@ def input_data(path_net=None):
         val[t] = dict()
         for u in G.nodes():
             val[t][u] = random.randint(1, 100)
-
     print("Val oracle done")
     
     #for the oracle prob
@@ -84,8 +82,7 @@ def input_data(path_net=None):
     
     print("Prop oracle done")
             
-    return G, k, T, val, p, arms_set, auctions
-
+    return G, k, T, val, p, arms_set, auctions, auction
 def prob(u, v):
     #print(v, " accepts the invitation from ",u," : ")
     r = random.random()
@@ -98,125 +95,9 @@ def prob(u, v):
 def valf(t, u):
     return val[t][u]
 
-def give_eps(t):
-       if t == 0:
-           return 1  #for the first step we cannot make exploitation, so eps_1 = 1
-       return (len(arms_set)*math.log(t+1)/(t+1))**(1/3)
-
-# Funzione per inizializzare le priori dei bracci utilizzando la centralità e la varianza scalata
-def initialize_arms_prior(centrality, arms_set):
-    max_centrality = max(np.array(list(centrality.values())))
-    norm_centrality = normalize_centrality(centrality)
-    arms_prior = {a:(norm_centrality[a],scale_variance(centrality[a], max_centrality)) for a in arms_set}
-    return arms_prior
-
-# Funzione per scalare il valore della varianza in base alla centralità
-def scale_variance(val, max_val):
-    max_variance = 2 
-    scaled_variance = max_variance * (1 - val / max_val)
-    return scaled_variance
-
-def normalize_centrality(centrality):
-    values = np.array(list(centrality.values()))
-    mean = np.mean(values)
-    std = np.std(values)
-    normalized = {a:(centrality[a] - mean) / std for a in centrality.keys()}
-    return normalized
 
 
-
-
-#####################################################################
-#####################################################################
-#                               NET GEN
-#####################################################################
-#####################################################################
-G, k, T, val, p, arms_set, auctions = input_data()
-
-####################################################################
-
-################## CENTRALITY MEASURE COMPUTATION ##################
-
-####################################################################
-
-# Page Rank 
-
-"""
-cen = pageRank(G)
-with open('pageRank.pickle', 'wb') as handle:
-    pickle.dump(cen, handle, protocol=pickle.HIGHEST_PROTOCOL)"""
-
-with open('pageRank.pickle', 'rb') as handle:
-    cen = pickle.load(handle)
-
-arms_set_page_rank = list(top(G,cen,200).keys()) # The 200 nodes with the highest centrality measure
-gaussian_dist_pagerank = initialize_arms_prior(cen,arms_set_page_rank) # Mean and variance based on the centrality measure
-
-
-# Vote Rank
-
-"""
-cen = voterank(G)
-with open('voterank.pickle', 'wb') as handle:
-    pickle.dump(cen, handle, protocol=pickle.HIGHEST_PROTOCOL)"""
-
-with open('voterank.pickle', 'rb') as handle:
-    cen = pickle.load(handle)
-
-arms_set_vote_rank = list(top(G,cen,200).keys()) # The 200 nodes with the highest centrality measure
-gaussian_dist_vote_rank = initialize_arms_prior(cen,arms_set_vote_rank) # Mean and variance based on the centrality measure
-
-# Degree
-"""
-cen = degree(G)
-with open('degree.pickle', 'wb') as handle:
-    pickle.dump(cen, handle, protocol=pickle.HIGHEST_PROTOCOL)"""
-
-with open('degree.pickle', 'rb') as handle:
-    cen = pickle.load(handle)
-
-arms_set_degree = list(top(G,cen,200).keys()) # The 200 nodes with the highest centrality measure
-gaussian_dist_degree = initialize_arms_prior(cen,arms_set_degree) # Mean and variance based on the centrality measure
-
-
-# shapley_degree
-"""
-cen = shapley_degree(G)
-with open('shapley_degree.pickle', 'wb') as handle:
-    pickle.dump(cen, handle, protocol=pickle.HIGHEST_PROTOCOL)"""
-
-with open('shapley_degree.pickle', 'rb') as handle:
-    cen = pickle.load(handle)
-
-arms_set_shapley_degree = list(top(G,cen,200).keys()) # The 200 nodes with the highest centrality measure
-gaussian_dist_shapley_degree = initialize_arms_prior(cen,arms_set_shapley_degree) # Mean and variance based on the centrality measure
-
-
-# shapley_threshold
-"""
-cen = shapley_threshold(G)
-with open('shapley_threshold.pickle', 'wb') as handle:
-    pickle.dump(cen, handle, protocol=pickle.HIGHEST_PROTOCOL)"""
-
-with open('shapley_threshold.pickle', 'rb') as handle:
-    cen = pickle.load(handle)
-
-arms_set_shapley_threshold = list(top(G,cen,200).keys()) # The 200 nodes with the highest centrality measure
-gaussian_dist_shapley_threshold = initialize_arms_prior(cen,arms_set_shapley_threshold) # Mean and variance based on the centrality measure
-
-
-# shapley_closeness
-
-"""
-cen = shapley_closeness(G,positive_decr_fun)
-with open('shapley_closeness.pickle', 'wb') as handle:
-    pickle.dump(cen, handle, protocol=pickle.HIGHEST_PROTOCOL)"""
-
-with open('shapley_closeness.pickle', 'rb') as handle:
-    cen = pickle.load(handle)
-
-arms_set_shapley_closeness = list(top(G,cen,200).keys()) # The 200 nodes with the highest centrality measure
-gaussian_dist_shapley_closeness = initialize_arms_prior(cen,arms_set_shapley_closeness) # Mean and variance based on the centrality measure
+G, k, T, val, p, arms_set, auctions, auction = input_data()
 
 
 ####################################################################
@@ -226,129 +107,13 @@ gaussian_dist_shapley_closeness = initialize_arms_prior(cen,arms_set_shapley_clo
 ####################################################################
 
 
-listk = [1,2,3,4,5] # Range of k values
-list_auction = ["GIDM","MUDAR","MUDAN"] # Different Auctions
-dict_results =  {'Bandit':[],'Auction':[], 'Time (s)':[], 'T':[], 'k': [], "Revenue":[]}
 
-########################## Normal armset ###########################
+##################         UCB           ##################
 
-for auction in list_auction:
-    dict_results =  {'Bandit':[],'Auction':[], 'Time (s)':[], 'T':[], 'k': [], "Revenue":[]}
-    for k in listk:
-        print("Auction: ",auction)
-        print("k: ",k)
-        ##################         UCB           ##################
+snm_ucb=SocNetMec(G=G, T=T, k=k, auctions=auctions, arms_set=arms_set, auction=auction)
+ucb_revenue = 0
 
-        snm_ucb=SocNetMec_UCB(G=G, T=T, k=k, auctions=auctions, arms_set=arms_set, auction=auction)
-        ucb_revenue = 0
-        opt_ucb_reward = 0
-        regrets_ucb = {}
+for step in tqdm(range(T)):
+    ucb_revenue += snm_ucb.run(step, prob, valf)
 
-        print("UCB: \n")
-        tic = time.time()
-        for step in tqdm(range(T)):
-            ucb_revenue += snm_ucb.run(step, prob, valf)
-            opt_ucb_reward += snm_ucb.get_best_arm_approx()
-            regrets_ucb[step] = opt_ucb_reward - ucb_revenue
-        toc = time.time()
-        exe_time_ucb = round(toc - tic, 3)
-
-        dict_results["Bandit"].append("UCB")
-        dict_results["Auction"].append(auction)
-        dict_results["Time (s)"].append(exe_time_ucb)
-        dict_results["T"].append(T)
-        dict_results["k"].append(k)
-        dict_results["Revenue"].append(ucb_revenue)
-
-        print("total revenue: ", ucb_revenue)
-        print()
-
-        ##################       MEAN UCB           ##################
-
-        ##################       Bayesian UCB           ##################
-
-        snm_ucb=SocNetMec_Bayesian_UCB(G=G, T=T, k=k, auctions=auctions, arms_set=arms_set, auction=auction)
-        ucb_revenue = 0
-        opt_ucb_reward = 0
-        regrets_ucb = {}
-
-        print("Bayesian UCB: \n")
-        tic = time.time()
-        for step in tqdm(range(T)):
-            ucb_revenue += snm_ucb.run(step, prob, valf)
-            opt_ucb_reward += snm_ucb.get_best_arm_approx()
-            regrets_ucb[step] = opt_ucb_reward - ucb_revenue
-        toc = time.time()
-        exe_time_ucb = round(toc - tic, 3)
-
-        dict_results["Bandit"].append("Bayesian_UCB")
-        dict_results["Auction"].append(auction)
-        dict_results["Time (s)"].append(exe_time_ucb)
-        dict_results["T"].append(T)
-        dict_results["k"].append(k)
-        dict_results["Revenue"].append(ucb_revenue)
-
-        print("total revenue: ", ucb_revenue)
-        print()
-
-        ##################       EPS-GREEDY           ##################
-        """
-        snm_eps=SocNetMec_EPS(G=G, T=T, k=k, auctions=auctions, arms_set=arms_set, auction=auction, eps=give_eps)
-        eps_revenue = 0
-        opt_eps_reward = 0
-        regrets_eps = {}
-
-        print("EPS-GREEDY: \n")
-        tic = time.time()
-        for step in tqdm(range(T)):
-            eps_revenue += snm_eps.run(step, prob, valf)
-            opt_eps_reward += snm_eps.get_best_arm_approx()
-            regrets_eps[step] = opt_eps_reward - eps_revenue
-        toc = time.time()
-        exe_time_eps = round(toc - tic, 3)
-
-        dict_results["Bandit"].append("EPS")
-        dict_results["Auction"].append(auction)
-        dict_results["Time (s)"].append(exe_time_eps)
-        dict_results["T"].append(T)
-        dict_results["k"].append(k)
-        dict_results["Revenue"].append(eps_revenue)
-
-        print("total revenue: ", eps_revenue)
-        print()"""
-
-        ##################       THOMPSON SAMPLING           ##################
-
-        snm_th=SocNetMec_TH(G=G, T=T, k=k, auctions=auctions, arms_set=arms_set, auction=auction)
-        th_revenue = 0
-        opt_th_reward = 0
-        regrets_th = {}
-
-        print("THOMPSON SAMPLING: \n")
-        tic = time.time()
-        for step in tqdm(range(T)):
-            th_revenue += snm_th.run(step, prob, valf)
-            opt_th_reward += snm_th.get_best_arm_approx()
-            regrets_th[step] = opt_th_reward - th_revenue
-        toc = time.time()
-        exe_time_th = round(toc - tic, 3)
-
-        dict_results["Bandit"].append("TH")
-        dict_results["Auction"].append(auction)
-        dict_results["Time (s)"].append(exe_time_th)
-        dict_results["T"].append(T)
-        dict_results["k"].append(k)
-        dict_results["Revenue"].append(th_revenue)
-
-        print("total revenue: ", th_revenue)
-        print()
-
-        df1 = pd.DataFrame(dict_results, columns=['Bandit','Auction', 'Time (s)', 'T', 'k', 'Revenue'])
-
-        path = "final_results/"+str(T)
-        
-        if not os.path.exists(path):
-            os.makedirs(path)
-        df1.to_csv(path+"/"+auction+".csv", index=False)
-
-print("END NET GEN 1")
+print("total revenue: ", ucb_revenue)

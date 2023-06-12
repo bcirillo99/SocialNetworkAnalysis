@@ -4,19 +4,20 @@ import pandas as pd
 
 
 
-df_mudan = pd.read_csv("final_results/20000/MUDAN_1.csv")
-df_mudar = pd.read_csv("final_results/20000/MUDAR_1.csv")
-df_vcg = pd.read_csv("final_results/20000/VCG_1.csv")
-df_gidm = pd.read_csv("final_results/20000/GIDM_1.csv")
+df_mudan = pd.read_csv("results_first/20000/MUDAN.csv")
+df_mudar = pd.read_csv("results_first/20000/MUDAR.csv")
+df_vcg = pd.read_csv("results_first/20000/VCG.csv")
+df_gidm = pd.read_csv("results_first/20000/GIDM.csv")
 
 """df_mudan = df.loc[df['Auction'] == "MUDAN"].reset_index(drop=True)
 df_mudar = df.loc[df['Auction'] == "MUDAR"].reset_index(drop=True)
 df_mixed = df.loc[df['Auction'] == "MIXED"].reset_index(drop=True)"""
 
 results = []
-listk = [1,2,3,4,5]
+listk = [2,3,4,5]
 
-path = "final_results/20000/"
+
+path = "results_first/20000/"
 
 revenue_ucb_mudar = []
 revenue_bayes_ucb_mudar = []
@@ -49,9 +50,9 @@ for k in listk:
     df_mudar_k = df_mudar.loc[df_mudar['k'] == k].reset_index(drop=True)
     revenue = df_mudar_k['Revenue'].tolist()
     revenue_ucb_mudar.append(revenue[0])
-    revenue_bayes_ucb_mudar.append(revenue[2])
-    revenue_eps_mudar.append(revenue[3])
-    revenue_thompson_mudar.append(revenue[4])
+    revenue_bayes_ucb_mudar.append(revenue[1])
+    #revenue_eps_mudar.append(revenue[3])
+    revenue_thompson_mudar.append(revenue[2])
 
     df_vcg_k = df_vcg.loc[df_vcg['k'] == k].reset_index(drop=True)
     revenue = df_vcg_k['Revenue'].tolist()
@@ -82,7 +83,7 @@ axs[0,0].legend()
 
 axs[0,1].plot(listk, revenue_ucb_mudar, label = 'UCB')
 axs[0,1].plot(listk, revenue_bayes_ucb_mudar, label = 'Bayesian UCB')
-axs[0,1].plot(listk, revenue_eps_mudar, label = 'Epsilon Greedy')
+#axs[0,1].plot(listk, revenue_eps_mudar, label = 'Epsilon Greedy')
 axs[0,1].plot(listk, revenue_thompson_mudar, label = 'Thompson Sampling')
 axs[0,1].set_xlabel('k')
 axs[0,1].set_xticks(listk, listk)
@@ -111,7 +112,7 @@ axs[1,1].set_title("GIDM")
 axs[1,1].legend()
 
 fig.tight_layout(pad=0.5)
-plt.savefig(path+'auctions_chart_1.png')
+plt.savefig(path+'auctions_chart.png')
 #plt.show()
 
 fig, axs = plt.subplots(2, 2, figsize=(10,6))
@@ -137,7 +138,7 @@ axs[0,1].set_title("Bayesian UCB")
 axs[0,1].legend()
 
 axs[1,0].plot(listk, revenue_eps_mudan, label = 'MUDAN')
-axs[1,0].plot(listk, revenue_eps_mudar, label = 'MUDAR')
+#axs[1,0].plot(listk, revenue_eps_mudar, label = 'MUDAR')
 axs[1,0].plot(listk, revenue_eps_vcg, label = 'VCG')
 axs[1,0].plot(listk, revenue_eps_gidm, label = 'GIDM')
 axs[1,0].set_xlabel('k')
@@ -157,7 +158,7 @@ axs[1,1].set_title("Thompson Sampling")
 axs[1,1].legend()
 
 fig.tight_layout(pad=0.5)
-plt.savefig(path+'bandit_charts_1.png')
+plt.savefig(path+'bandit_charts.png')
 
 print(listk)
 #plt.show()

@@ -1,0 +1,5 @@
+,Bandit,T,k,Revenue,armset
+0,UCB,60000,2,1627548.0,degree
+1,UCB,60000,3,1936187.0,pagerank
+2,UCB,60000,4,2314593.0,pagerank
+3,UCB,60000,5,2870482.0,degree

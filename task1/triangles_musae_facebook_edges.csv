@@ -1,8 +1,8 @@
 Algorithm,Time (s),Triangles
-Standard,3.144,794953.0
-Parallel standard,3.545,794952.9999999999
-Optimized,4.82,794953.0
-Networkx,1.526,794953.0
-nodeIteratorPlusPlus,0.802,794953.0
-nodeIteratorN,0.215,794953.0
-parallel_nodeIteratorN,0.218,794953.0
+Standard,3.607,794953.0
+Parallel standard,3.331,794952.9999999999
+Optimized,5.341,794953.0
+Networkx,1.641,794953.0
+nodeIteratorPlusPlus,0.905,794953.0
+nodeIteratorN,0.182,794953.0
+parallel_nodeIteratorN,0.366,794953.0

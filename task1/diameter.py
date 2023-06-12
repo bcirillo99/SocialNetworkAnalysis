@@ -161,66 +161,8 @@ if __name__ == '__main__':
 
     n_jobs = args.n_jobs
     file_name = args.file_name
-
-    G2 = create_graph_from_txt('../data/net_4.txt', sep=' ', directed=False)
-    """tic = time.time()
-    diam = parallel_diam(G2, n_jobs)
-    toc = time.time()
-    exe_time = round(toc - tic, 3)"""
-    dict_G1 = {'Algorithm':[], 'Time (s)':[], 'Diameter':[], 'Nodes': [], "Edges":[], "r":[], "k":[]}
-    dict_G1["Algorithm"].append("net_4")
-    dict_G1["Time (s)"].append(1)
-    dict_G1["Diameter"].append(68)
-    dict_G1["Nodes"].append(G2.number_of_nodes())
-    dict_G1["Edges"].append(G2.number_of_edges())
-    dict_G1["r"].append(0)
-    dict_G1["k"].append(0)
-    print(dict_G1)
-
-    G1 = GenWS2DG(20000, 2.7, 1, 4)
-    tic = time.time()
-    diam = parallel_diam(G1, n_jobs)
-    toc = time.time()
-    exe_time = round(toc - tic, 3)
-    dict_G1["Algorithm"].append("GenWS2DG")
-    dict_G1["Time (s)"].append(exe_time)
-    dict_G1["Diameter"].append(diam)
-    dict_G1["Nodes"].append(G1.number_of_nodes())
-    dict_G1["Edges"].append(G1.number_of_edges())
-    dict_G1["r"].append(1)
-    dict_G1["k"].append(1)
-    t = f'Parallel standard algo\ntime: {exe_time}s, diameter: {diam}'
-    df1 = pd.DataFrame(dict_G1, columns=['Algorithm', 'Time (s)', 'Diameter', 'Nodes', 'Edges','r','k'])
-    print(df1)
     
-
-    for r in numpy.arange(0.5, 1.1, 0.1):
-        for k in range(10,8002):
-            print(k)
-            G1 = GenWS2DG(20000, r, k, 2)
-
-
-            tic = time.time()
-            diam = parallel_diam(G1, n_jobs)
-            toc = time.time()
-            exe_time = round(toc - tic, 3)
-            dict_G1["Algorithm"].append("GenWS2DG")
-            dict_G1["Time (s)"].append(exe_time)
-            dict_G1["Diameter"].append(diam)
-            dict_G1["Nodes"].append(G1.number_of_nodes())
-            dict_G1["Edges"].append(G1.number_of_edges())
-            dict_G1["r"].append(r)
-            dict_G1["k"].append(k)
-            t = f'Parallel standard algo\ntime: {exe_time}s, diameter: {diam}'
-            df1 = pd.DataFrame(dict_G1, columns=['Algorithm', 'Time (s)', 'Diameter', 'Nodes', 'Edges','r','k'])
-            print(df1)
-
-
-    df1 = pd.DataFrame(dict_G1, columns=['Algorithm', 'Time (s)', 'Diameter', 'Nodes', 'Edges','r','k'])
-    print(df1)
-    df1.to_csv("prova.csv", index=False)
-
-    """G1 = create_graph_from_csv('../data/musae_facebook_edges.csv')
+    G1 = create_graph_from_csv('../data/musae_facebook_edges.csv')
     G2 = create_graph_from_txt('../data/Cit-HepTh.txt', sep='\t', directed=True)
 
     #df = pd.DataFrame()
@@ -335,4 +277,4 @@ if __name__ == '__main__':
     ### Solo per connessi
 
     df2 = pd.DataFrame(dict_G2, columns=['Algorithm', 'Time (s)', 'Diameter'])
-    df2.to_csv("diameter_Cit-HepTh.csv", index=False)"""
+    df2.to_csv("diameter_Cit-HepTh.csv", index=False)

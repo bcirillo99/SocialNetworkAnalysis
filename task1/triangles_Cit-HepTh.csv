@@ -1,4 +1,4 @@
 Algorithm,Time (s),Triangles
-Standard,1.104,545.0
-Parallel standard,1.386,545.0
-Optimized,7.949,234927.0
+Standard,1.281,545.0
+Parallel standard,1.522,545.0
+Optimized,8.414,234927.0

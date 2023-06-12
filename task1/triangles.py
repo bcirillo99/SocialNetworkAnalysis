@@ -113,7 +113,6 @@ def triangles_nodeIteratorN(G: nx.Graph, nodes=None):
 
     return triangles
 
-
 # -------------------------------------- Algoritmi paralleli
 def parallel_nodeIteratorN(G: nx.Graph, n_jobs: int):
     """
@@ -204,7 +203,7 @@ def less(G, edge):
 
 #OPTIMIZTION2: It distinguishes between high-degree nodes (called heavy hitters) and low-degree nodes.
 #Triangles involving only heavy hitters (that have been recognized to be the bottleneck of the naive algorithm) are handled in a different way respect to remaining triangles.
-def num_triangles(G):
+def num_triangles(G): 
     num_triangles = 0
     m = nx.number_of_edges(G)
 
@@ -253,7 +252,7 @@ if __name__ == '__main__':
     file_name = args.file_name
 
     G1 = create_graph_from_csv('../data/musae_facebook_edges.csv')
-    G2 = create_graph_from_txt('../data/net_4.txt', sep=' ', directed=False)
+    G2 = create_graph_from_txt('../data/Cit-HepTh.txt', sep='\t', directed=True)
 
     dict_G1 = {'Algorithm':[], 'Time (s)':[], 'Triangles':[]}
     dict_G2 = {'Algorithm':[], 'Time (s)':[], 'Triangles':[]}
