@@ -178,6 +178,7 @@ class Bayes_UCB_Learner:
         #print("T: ", self.__t)
         mu, sigma = self.__gaussian_dist[a_t]
         n = self.__num[a_t]
+        
         mu = (mu * (n-1) + reward) / n
         sigma = (sigma * (n - 2) + (reward - mu) ** 2) / (n - 1) if n > 1 else 1
         self.__gaussian_dist[a_t] =  (mu, sigma)

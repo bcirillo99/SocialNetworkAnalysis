@@ -1,0 +1,5 @@
+,Bandit,Auction,Revenue,armset
+0,UCB,GIDM,1173350.0,shapley_degree
+1,UCB,GIDM,1592862.0,pagerank
+2,UCB,MUDAN,1455613.0,pagerank
+3,UCB,MUDAN,1904066.0,degree

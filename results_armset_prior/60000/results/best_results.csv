@@ -1,0 +1,5 @@
+,Bandit,Auction,Revenue,armset
+0,UCB,GIDM,1894210.0,shapley_threshold
+1,UCB,GIDM,2335563.0,shapley_degree
+2,UCB,GIDM,2720157.0,shapley_degree
+3,UCB,GIDM,2959281.0,voterank
