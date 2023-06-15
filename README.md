@@ -12,7 +12,7 @@ Model used to generate the net_4 network is the **Watts-Strogatz** with the foll
 - r = 2.71
 - k = 1
 - q = 4
-- 
+
 For task 2, the bandit algorithm used was **UCB1** with the use of a reduced armset containing the 200 nodes with the higher pageRank, while the auction format chosen was **GIDM**.
 
-The goal of the various tasks are explained in the *midterm.pdf* and *final.pdf* files contained in the outlines folder
+The goal of the various tasks are explained in the *midterm.pdf* and *final.pdf* files contained in the **outlines** folder
