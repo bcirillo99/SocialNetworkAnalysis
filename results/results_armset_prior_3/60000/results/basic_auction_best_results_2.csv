@@ -1,0 +1,5 @@
+,Bandit,Auction,Time (s),T,k,Revenue,armset
+0,UCB,GIDM,55.581,60000,2,1589927.0,degree
+1,UCB,GIDM,62.748,60000,3,1858882.0,voterank
+2,UCB,GIDM,74.896,60000,4,2337390.0,voterank
+3,UCB,GIDM,64.077,60000,5,2414294.0,voterank

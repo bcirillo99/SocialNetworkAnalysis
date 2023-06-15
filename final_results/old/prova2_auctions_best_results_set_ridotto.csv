@@ -1,9 +1,0 @@
-,Bandit,Auction,Time (s),T,k,Revenue,armset
-0,UCB_mean,MUDAN,13.451,20000,1,326195.0,shapley_closeness
-1,UCB,MUDAR,5.551,20000,1,1561229.0,pagerank
-2,UCB,MUDAN,8.261,20000,4,793984.0,pagerank
-3,UCB_mean,MUDAR,5.451,20000,4,945422.0,degree
-4,UCB_mean,MUDAN,13.057,20000,20,793381.0,degree
-5,Bayesian_UCB,MUDAR,2.832,20000,20,25225.0,voterank
-6,TH,MUDAN,10.865,20000,50,90639.0,degree
-7,UCB,MUDAR,4.304,20000,50,0.0,pagerank

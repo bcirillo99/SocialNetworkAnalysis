@@ -1,5 +1,0 @@
-,Bandit,Auction,Time (s),T,k,Revenue,armset
-0,UCB,MUDAR,8.009,20000,1,1553394.0,shapley_closeness
-1,Bayesian_UCB,MUDAR,3.142,20000,4,1000450.0,degree
-2,Bayesian_UCB,MUDAN,7.262,20000,20,790693.0,degree
-3,TH,MUDAN,9.87,20000,50,87610.0,degree

@@ -1,0 +1,5 @@
+,Bandit,Revenue,armset
+0,UCB,1041324.0,degree
+1,UCB,1458971.0,shapley_degree
+2,UCB,1690165.0,pagerank
+3,UCB,1791251.0,degree

@@ -95,7 +95,7 @@ if __name__ == '__main__':
     # Test e Analisi delle tempistiche
 
     parser = ArgumentParser()
-    parser.add_argument('--k', help='numero di nodi da far ritornare alla funzione top', type=int, default=3)
+    parser.add_argument('--k', help='numero di nodi da far ritornare alla funzione top', type=int, default=5)
     parser.add_argument('--file_name', help='noem file di testo su cui salvare i risultati', type=str, default="centrality.txt")
     
     args = parser.parse_args()
@@ -111,7 +111,7 @@ if __name__ == '__main__':
         #################################### Facebook ####################################
         ##################################################################################   
             
-        s = f'Facebook\n\ndirected: {G1.is_directed()}, node: {G1.number_of_nodes()}, edges: {G1.number_of_edges()}'
+        """s = f'Facebook\n\ndirected: {G1.is_directed()}, node: {G1.number_of_nodes()}, edges: {G1.number_of_edges()}'
         fp.write(s+"\n\n")
         print(s)
         
@@ -235,7 +235,7 @@ if __name__ == '__main__':
 
         t = f'betweenness centrality\ntime: {toc - tic}s, top {k} nodes: {top(G2,cen,k)}'
         fp.write(t+"\n\n")
-        print(t)
+        print(t)"""
 
 
 
@@ -259,13 +259,13 @@ if __name__ == '__main__':
         print(t)
 
         ################################### VoteRank ###################################
-        tic = time.time()
+        """tic = time.time()
         cen = voterank(G2)
         toc = time.time()
 
         t = f'VoteRank centrality\ntime: {toc - tic}s, top {k} nodes: {top(G1,cen,k)}'
         fp.write(t+"\n\n")
-        print(t)
+        print(t)"""
         #print(nx.voterank(G2))
 
         ################################### HITS ###################################

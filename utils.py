@@ -6,7 +6,7 @@ import networkx as nx
 from pathlib import Path
 from queue import PriorityQueue
 
-from lesson5 import GenWS2DG
+from model import GenWS2DG
 
 def auction_results(allocations: dict, bids: dict, payments: dict):
     rw = sum(payments.values())

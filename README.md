@@ -1,13 +1,18 @@
-# SocialNetworkAnalysis
-La cartelle è strutturata nel seguente modo. Vi sono 4 cartelle denominate **task1**, **task2**, **task3** e **task4** contenenti codici e risultati per i task della midterm.
-Per il final project il task1 è stato analizzato con i file che si trovano nella cartella **task1_final** contenente il codice per individuare il tipo di modello di rete e i rispettivi parametri.
-Il file python *SocNetMec.py* contiene la classe richiesta per il task 2. 
+# Social Network Analysis project
+The repo contains code and reports for the university exam *Social Network Analysisis*, and it's structured as follows:
+- There are 4 folders named **task1**, **task2**, **task3** and **task4** containing codes and results for midterm project tasks.
+- The folder **task1_final** containing codes and results for the task 1 of the final project
+- The folder **results** containing the results of the task 2 of the final profect
+- The python file *SocNetMec.py* contains the class required for task 2 of the final profect
+- The python file *final_test.py* contains the code for running the task 2 of the final profect
+- The python file *model.py* contains functions to generate different types of social network models
+- There are also 2 pdf file *task1_report.pdf* and *Report_Social_Network_Analysis.pdf* where they explain the various decisions and analyses that led to these results:
 
-La funzione *input_data* del file *final_test.py* è stata cambiata in modo da restituire due oggetti (arms_set, auctions) che servono per la classe SocNetMac. Qual ora la funzione debba restituire il numero di elementi come il file originale vi è un file *final_test2.py* che calcola questi valori fuori la funzione
-
-Per il task1 del final project è presente anche un report *task1.pdf* dove vi è un'analisi dettagliata dei vari esperimenti che hanno portato alla sconclusione che il modello utilizzato per generare la rete net_4 è quello di **Watts-Strogatz** con i seguenti parametri:
+Model used to generate the net_4 network is the **Watts-Strogatz** with the following parameters:
 - r = 2.71
 - k = 1
 - q = 4
+- 
+For task 2, the bandit algorithm used was **UCB1** with the use of a reduced armset containing the 200 nodes with the higher pageRank, while the auction format chosen was **GIDM**.
 
-Per il task 2 l’algoritmo del bandito utilizzato è stato **UCB1**, mentre il formato d’asta scelto è stato **GIDM** (*Generalized Information Diffusion Mechanism* dal paper “Selling Multiple Items via Social Networks”) che è la generalizzazione dell’asta IDM per la vendita di più oggetti. 
+The goal of the various tasks are explained in the *midterm.pdf* and *final.pdf* files contained in the outlines folder

@@ -1,8 +1,0 @@
-Auction,T,Max,Avg,armset
-MUDAN,20000,98,4.17575,normal
-MUDAN,20000,84,4.8858,pagerank
-MUDAN,20000,105,5.4922,degree
-MUDAN,20000,99,5.6821,voterank
-MUDAN,20000,93,5.77975,shapley_degree
-MUDAN,20000,109,5.61895,shapley_threshold
-MUDAN,20000,89,4.8172,shapley_closeness

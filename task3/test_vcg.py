@@ -7,7 +7,7 @@ import random
 from collections import deque
 from vcg import *
 import time
-from lesson5 import GenWS2DG
+from model import GenWS2DG
 
 
 

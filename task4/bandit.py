@@ -11,7 +11,7 @@ import random
 import sys
 # adding Folder_2 to the system path
 sys.path.insert(0, '../')
-from lesson5 import GenWS2DG
+from model import GenWS2DG
 from utils import *
 from operator import itemgetter
 
@@ -250,8 +250,8 @@ if __name__ == '__main__':
 
     parser = ArgumentParser()
     parser.add_argument('--directed', help='type of Graph', type=bool, default=False)
-    parser.add_argument('--T', help='Time Horizon', type=int, default=10000)
-    parser.add_argument('--N', help='number of simulations', type=int, default=5)
+    parser.add_argument('--T', help='Time Horizon', type=int, default=20000)
+    parser.add_argument('--N', help='number of simulations', type=int, default=1)
     parser.add_argument('--file_name', help='noem file di testo su cui salvare i risultati', type=str, default="results.csv")
     
     args = parser.parse_args()
@@ -272,7 +272,7 @@ if __name__ == '__main__':
 
     file_name = args.file_name
 
-    G = GenWS2DG(300,2.71,1,4)
+    G = GenWS2DG(5000,2.71,1,4)
 
     s = f'\ Network ---> directed: {G.is_directed()}, node: {G.number_of_nodes()}, edges: {G.number_of_edges()}'
     print(s)
@@ -419,7 +419,6 @@ if __name__ == '__main__':
     dict_results["Last reward"].append(th_mean_rewards[T-1])
 
     df1 = pd.DataFrame(dict_results)
-    path = "final_results_UCB_GIDM/"+str(T)
     df1.to_csv(file_name, index=False)
 
 
